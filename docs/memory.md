@@ -20,8 +20,10 @@ Four tables, all in `public`, all with row level security enabled and every poli
 |---|---|---|
 | `profiles` | `id` (the auth user), display name, birth date, birth time, latitude, longitude, IANA timezone, birth place label, tone preset | Written once at onboarding. Birth data is immutable afterwards, because the cached chart was computed from it. |
 | `charts` | `user_id` (primary key), `natal` jsonb, `computed_at` | Written once, ever. The primary key on `user_id` is what makes that structural rather than a promise. |
-| `readings` | `user_id`, `created_at`, `kind`, `data` jsonb, `shown` text | Append only. One row per turn the companion answered, holding the structured response it was grounded in and the text the user actually saw. |
-| `memories` | `user_id`, `created_at`, `content`, `embedding vector(768)`, `reading_id` | Append only. The semantic index over what was said. |
+| `readings` | `user_id`, `created_at`, `kind`, `data` jsonb, `shown` text | The application only appends. One row per turn the companion answered, holding what the answer was grounded in and the text the user actually saw. |
+| `memories` | `user_id`, `created_at`, `content`, `embedding vector(768)`, `reading_id` | The application only appends. The semantic index over what was said. |
+
+**Append only is what the application does, not what the schema permits, and the difference matters to a fork.** `readings` and `memories` each carry a delete policy keyed to the owner, so a person may erase their own rows. A clear my history feature is therefore a query against the client you already have, not a migration. Neither table has an update policy, so a stored row can be removed but never quietly rewritten, which keeps the history honest. `profiles` and `charts` have neither kind of policy, which is what makes birth data and the computed chart immutable after onboarding rather than merely discouraged, and `tests/schema.test.ts` asserts that half.
 
 `charts.user_id` being the primary key is the single most important line in the schema. A natal chart is computed from immutable birth data, so it is worth exactly one calculation for the lifetime of the account. The table cannot hold a second row for the same person, so a bug that retried the computation would fail loudly on the insert instead of quietly billing every conversation.
 
@@ -32,7 +34,7 @@ Every table follows the same shape:
 ```sql
 alter table public.readings enable row level security;
 
-create policy "readings are private to their owner"
+create policy "readings are readable by their owner"
   on public.readings for select
   using ((select auth.uid()) = user_id);
 ```
@@ -67,9 +69,11 @@ language sql stable security invoker set search_path = ''
 All of it lives behind one module, `src/lib/memory/`, and there are exactly two verbs.
 
 ```ts
-const memories = await recall(supabase, userMessage);   // before the model call
-await remember(supabase, { kind, data, shown, prompt }); // after it
+const memories = await recall(supabase, asked, config.recallCount);        // before the model call
+await remember(supabase, userId, { kind, shown, asked, grounding });       // after it
 ```
+
+`recall` takes what the person just asked and how many to return, and that count comes from the config rather than from a caller literal. It takes no user id, because row level security does the filtering, and a policy you cannot get wrong beats an argument you can. `remember` takes the user id it writes and one `ReadingInput`: the kind, the text that was shown, the question that produced it, and optionally what the answer was grounded in.
 
 `recall` runs before the language model call and returns the past the model should see. `remember` runs after it and appends what just happened. Nothing else in the codebase reads or writes `readings` or `memories`. If you find yourself adding a third verb, the flow has probably grown a step that belongs inside one of these two.
 
@@ -81,7 +85,7 @@ Semantic recall needs an embedding model. Two of the three supported chat provid
 
 | Configured provider | Embedding model | Recall path |
 |---|---|---|
-| Google (default) | `gemini-embedding-001`, output dimensionality 768 | pgvector, top matches by cosine similarity |
+| Google (default) | the current embedding model, output dimensionality 768 | pgvector, top matches by cosine similarity |
 | OpenAI | the current small text embedding model, `dimensions` set to 768 | pgvector, top matches by cosine similarity |
 | Anthropic | none | most recent readings, newest first |
 
@@ -99,13 +103,13 @@ One turn, in order. The numbering matches the tutorial the template implements.
 
 1. **Identify.** The Supabase server client resolves the session from cookies. No session, no turn.
 2. **Load the cached chart.** One read of `charts` by user. No calculation call, forever, past the first one.
-3. **Recall.** `recall(supabase, userMessage)` returns the relevant past, semantically or chronologically.
-4. **Fetch live facts.** The transits for today, computed against the stored birth data through `@roxyapi/sdk`. This is the only outbound calculation call in a conversation, and it carries birth data only.
-5. **Assemble.** `buildSystemPrompt` folds the chart summary, the recalled memories, the live transits, and the chosen tone into one system prompt. It is a pure function and it is where you look when the companion says something you did not expect.
-6. **Stream.** The reply streams to the browser.
-7. **Remember.** On finish, `remember` appends the reading and, when embeddings are configured, the embedded memory.
+3. **Recall.** `recall` returns the relevant past, semantically or chronologically.
+4. **Gather the tools.** `getCompanionTools()` collects the tool definitions from the connected Remote MCP servers. It is independent of recall, so the route runs the two together in one `Promise.all` and the turn waits for the slower of them rather than for both.
+5. **Assemble.** `buildSystemPrompt` folds the chart summary, the recalled memories, the chosen tone, today date, and whether any calculation server answered into one system prompt. It is a pure function and it is where you look when the companion says something you did not expect.
+6. **Stream.** The reply streams to the browser, and the model calls whichever calculations the question actually needed, through the tools from step 4. The application makes no calculation call of its own here.
+7. **Remember.** On finish, `remember` appends the reading with the calculations the answer was grounded in and, when embeddings are configured, the embedded memory.
 
-Step 2 and step 4 are the whole argument. The expensive, immutable thing is computed once and stored. The cheap, time dependent thing is computed fresh. Neither one is guessed by the model.
+Step 2 and step 6 are the whole argument. The expensive, immutable thing is computed once and stored, so it costs nothing to reread forever. The cheap, time dependent thing is fetched fresh, by the model, only on a turn that needs it, so a question about how somebody is feeling costs no calculation at all. Neither one is guessed.
 
 ## Where the paywall goes
 

@@ -14,12 +14,22 @@ One palette. It is declared as CSS custom properties in `src/app/globals.css`, m
 | `foreground` | `#14232E` | `#EFE7D3` |
 | `card` | `#F1EADB` | `#1B2A39` |
 | `card-foreground` | `#14232E` | `#EFE7D3` |
-| `muted-foreground` | `#5C6A76` | `#92A4B2` |
+| `popover` | `#F1EADB` | `#1B2A39` |
+| `popover-foreground` | `#14232E` | `#EFE7D3` |
 | `primary` | `#254B5A` | `#C9A96B` |
 | `primary-foreground` | `#F6F2E6` | `#16222E` |
+| `secondary` | `#F1EADB` | `#1B2A39` |
+| `secondary-foreground` | `#14232E` | `#EFE7D3` |
+| `muted` | `#F1EADB` | `#1B2A39` |
+| `muted-foreground` | `#5C6A76` | `#92A4B2` |
 | `accent` | `#B89D62` | `#99BAD7` |
-| `border` | `#E4DBC6` | `#263A4C` |
+| `accent-foreground` | `#14232E` | `#16222E` |
 | `destructive` | `#B23A38` | `#E4736B` |
+| `border` | `#E4DBC6` | `#263A4C` |
+| `input` | `#E4DBC6` | `#263A4C` |
+| `ring` | `#254B5A` | `#C9A96B` |
+
+Eighteen tokens, in the order they are declared. `popover`, `secondary` and `muted` all take the card surface on purpose: this product has one raised surface, not three, and giving them separate values is how a menu ends up a shade off the card it opens over. The shadcn primitives expect all three names to exist, so they are declared rather than dropped.
 
 Selectors are `:root` for light and `.dark` for dark, where `.dark` is written by the theme provider. `tests/design-tokens.test.ts` asserts every token in the table above exists in both blocks, so a half finished recolour fails the suite instead of shipping a dark mode with a light border.
 

@@ -61,5 +61,5 @@ The URL and the publishable key are in the project API settings. Full deployment
 ## What is deliberately not configurable
 
 - **No theme switcher and no palette config.** One palette, light and dark, both designed. A fork changes the tokens in `globals.css` and the whole product follows.
-- **No feature flags.** There are five screens and they all matter.
+- **No feature flags.** There are six screens and they all matter.
 - **No payments.** The template ships the memory pattern, which is the thing worth charging for, and leaves the charging to you. Reasoning is in [memory.md](./memory.md).

@@ -145,6 +145,11 @@ create policy "a person may erase their own memories"
 --
 -- search_path is emptied to pin every name, which is why the distance operator is written in its
 -- fully qualified form.
+--
+-- hnsw.iterative_scan keeps recall deep as history grows. The index finds nearest neighbours
+-- before the user filter applies, so a fixed scan returns fewer and fewer of one user's rows as
+-- other rows crowd the graph. An iterative scan keeps walking the index until match_count rows
+-- survive the filter, and strict_order keeps them in exact distance order.
 create function public.match_memories(
   query_embedding extensions.vector(768),
   match_count int
@@ -159,6 +164,7 @@ language sql
 stable
 security invoker
 set search_path = ''
+set hnsw.iterative_scan = strict_order
 as $$
   select
     m.id,

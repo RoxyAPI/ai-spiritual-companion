@@ -57,11 +57,14 @@ describe('error codes map to messages a person can act on', () => {
     });
   }
 
-  it('falls back to the server message for a code it has not seen', async () => {
+  it('never passes an unrecognised upstream message through to the reader', async () => {
     const { unwrap } = await loadGuard('test-key');
-    await expect(
-      unwrap(Promise.resolve({ error: { code: 'something_new', error: 'Upstream said this' } })),
-    ).rejects.toThrow('Upstream said this');
+    const thrown = unwrap(
+      Promise.resolve({ error: { code: 'something_new', error: 'Upstream said this' } }),
+    );
+    await expect(thrown).rejects.toThrow('The calculation could not be completed');
+    // The upstream text is third party prose nobody reviewed. It goes to the server log instead.
+    await expect(thrown).rejects.not.toThrow('Upstream said this');
   });
 });
 

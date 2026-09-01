@@ -1,7 +1,7 @@
 import {
   convertToModelMessages,
   createUIMessageStreamResponse,
-  stepCountIs,
+  isStepCount,
   streamText,
   toUIMessageStream,
   type UIMessage,
@@ -10,6 +10,7 @@ import { config } from '@/config/companion.config';
 import { getModel } from '@/lib/ai';
 import { requireOnboarded } from '@/lib/auth';
 import { chartFacts } from '@/lib/chart';
+import { checkChatQuota } from '@/lib/chat-limit';
 import { getCompanionTools } from '@/lib/mcp';
 import { recall, remember } from '@/lib/memory';
 import { buildSystemPrompt } from '@/lib/prompt';
@@ -38,9 +39,30 @@ function lastUserText(messages: UIMessage[]): string {
 }
 
 export async function POST(request: Request) {
-  const { messages }: { messages: UIMessage[] } = await request.json();
+  // Authentication happens before the body is read. Parsing first lets anyone at all make the
+  // server buffer and parse a payload of any size, and turns malformed JSON from a stranger into
+  // an unauthenticated 500.
   const user = await requireOnboarded();
   const supabase = await createClient();
+
+  // Spend protection runs before the body is parsed and before any model or calculation call.
+  const quota = await checkChatQuota(supabase, user.id);
+  if (!quota.allowed) {
+    return Response.json(
+      { error: quota.message },
+      { status: 429, headers: { 'Retry-After': String(quota.retryAfterSeconds) } },
+    );
+  }
+
+  let messages: UIMessage[];
+  try {
+    ({ messages } = await request.json());
+  } catch {
+    return Response.json({ error: 'Malformed request body.' }, { status: 400 });
+  }
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return Response.json({ error: 'Malformed request body.' }, { status: 400 });
+  }
 
   const { data: chart } = await supabase
     .from('charts')
@@ -80,7 +102,7 @@ export async function POST(request: Request) {
     instructions,
     tools,
     // A turn may resolve a place, then read the sky, then answer. Past that it is looping.
-    stopWhen: stepCountIs(6),
+    stopWhen: isStepCount(6),
     messages: await convertToModelMessages(messages),
     // Appending happens after the reply was actually delivered, so the history records what the
     // person saw rather than what the server hoped to send.

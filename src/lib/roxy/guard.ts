@@ -16,7 +16,7 @@ interface SdkResult<T> {
 }
 
 /** Maps a stable error code to something a person can act on, without leaking internals. */
-function messageForCode(code: string | undefined, fallback: string | undefined): string {
+function messageForCode(code: string | undefined): string {
   switch (code) {
     case 'validation_error':
       return 'That request was rejected as invalid. Check the birth date, time, and place.';
@@ -31,7 +31,10 @@ function messageForCode(code: string | undefined, fallback: string | undefined):
     case 'not_found':
       return 'That was not found.';
     default:
-      return fallback ?? 'The calculation could not be completed. Please try again.';
+      // The upstream text is deliberately not passed through to the reader. It is third party prose
+      // that has never been reviewed for what it discloses, and it describes nothing the reader can
+      // act on. Whoever runs the server gets the real thing in the log below instead.
+      return 'The calculation could not be completed. Please try again.';
   }
 }
 
@@ -47,7 +50,10 @@ function messageForCode(code: string | undefined, fallback: string | undefined):
 export async function unwrap<T>(call: Promise<SdkResult<T>>): Promise<T> {
   if (!hasApiKey) throw new Error(NO_KEY);
   const { data, error } = await call;
-  if (error) throw new Error(messageForCode(error.code, error.error));
+  if (error) {
+    console.error('[roxy] calculation call failed:', error.code ?? 'no code', error.error ?? '');
+    throw new Error(messageForCode(error.code));
+  }
   return data as T;
 }
 

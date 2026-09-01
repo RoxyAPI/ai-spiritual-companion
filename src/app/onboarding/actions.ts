@@ -2,10 +2,10 @@
 
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { TONE_KEYS } from '@/lib/prompt';
 import { roxy } from '@/lib/roxy/client';
 import { unwrap } from '@/lib/roxy/guard';
 import { createClient } from '@/lib/supabase/server';
-import type { TonePreset } from '@/types';
 
 /**
  * The only place in the product that computes a natal chart.
@@ -15,13 +15,14 @@ import type { TonePreset } from '@/types';
  * loudly on the insert rather than quietly billing every conversation.
  */
 
-const TONES = ['warm', 'mystical', 'clinical', 'edgy'] as const satisfies readonly TonePreset[];
-
 const schema = z.object({
   displayName: z.string().trim().min(1, 'Tell the companion what to call you').max(80),
   birthDate: z.iso.date('Use the date picker'),
   birthTime: z.string().regex(/^\d{2}:\d{2}$/, 'Use the time picker'),
-  tone: z.enum(TONES),
+  // Derived from the preset map rather than repeated here. A hand written list accepts a SHORT one
+  // silently, so a voice offered by the form would be rejected on submit and nothing would fail
+  // until somebody picked it.
+  tone: z.enum(TONE_KEYS),
   city: z.string().trim().min(1, 'Choose your birth city from the list'),
   province: z.string(),
   country: z.string(),

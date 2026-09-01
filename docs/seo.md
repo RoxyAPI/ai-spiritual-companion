@@ -25,6 +25,8 @@ The landing page emits one `SoftwareApplication` block, built with `schema-dts` 
 
 One block, on one page. There is nothing else here worth describing to a machine, and a template that emits a `Person` for a user who has not signed up yet is emitting a lie.
 
+The block also carries the license. Everything in it is built from `src/config/companion.config.ts`, so a fork that edits the config gets correct structured data without opening this file.
+
 ## Social card
 
 `src/app/opengraph-image.tsx` renders the card at request time from the config: product name, tagline, and the palette. It uses the same colour values as the stylesheet, which cannot read a CSS variable, so the two are kept in step by the design tokens test.

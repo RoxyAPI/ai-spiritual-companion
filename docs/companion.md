@@ -8,11 +8,11 @@ One environment variable picks the model. Three are wired, and the shape is deli
 
 | `LLM_PROVIDER` | Chat model | Key | Notes |
 |---|---|---|---|
-| `google` (default) | `gemini-3.7-flash` | `GOOGLE_GENERATIVE_AI_API_KEY` | Has a free tier, and the same key covers embeddings, so the default setup needs two keys in total rather than three. |
-| `anthropic` | `claude-haiku-4-5` | `ANTHROPIC_API_KEY` | Strongest reader of a chart summary. No embedding endpoint, so recall falls back to recency. |
+| `google` (default) | the current fast chat model | `GOOGLE_GENERATIVE_AI_API_KEY` | Has a free tier, and the same key covers embeddings, so the default setup needs two keys in total rather than three. |
+| `anthropic` | the current small chat model | `ANTHROPIC_API_KEY` | Strongest reader of a chart summary. No embedding endpoint, so recall falls back to recency. |
 | `openai` | the current small chat model | `OPENAI_API_KEY` | Its embedding model is wired too, so recall stays semantic. |
 
-Exact model identifiers live in `src/lib/ai.ts` and nowhere else. Do not restate them in a component, a prompt, or a page: they move, and a copy is how a version string goes stale for a year.
+Exact model identifiers live in `src/lib/ai.ts` and nowhere else. Do not restate them in a component, a prompt, a page, or a document, this one included: they move, and a copy is how a version string goes stale for a year. Read `getModel()` for what actually runs.
 
 `getModel()` returns the chat model and `getEmbeddingModel()` returns the embedding model or `null`. Between them they are the entire provider surface.
 
@@ -41,9 +41,11 @@ It assembles, in order:
 2. **The date today**, stated explicitly. A model that infers the date from its training data will get it wrong, and every transit reading depends on it.
 3. **The person.** Their name, birth details, and the chart summary: luminaries, ascendant, and the placements worth naming. Not the whole chart response, which is large and mostly noise for a conversation.
 4. **What the companion remembers.** The recalled memories with their dates, introduced as memory rather than as fact, so the model can say "last month you were focused on work" and mean it.
-5. **How to use the live calculations.** Always ask for the compact response shape, resolve a place before any calculation that needs one, and call what the question needs rather than everything available. When no calculation server answered, this block says so instead, and tells the model not to invent a transit, a card, or a date.
-6. **Grounding rules.** Every claim traces to the data above or to a tool result. Never invent a placement. Never recite the data back as a list.
-7. **Boundaries.** Below.
+5. **How to use the live calculations.** Always ask for the compact response shape, resolve a place before any calculation that needs one, and call what the question needs rather than everything available. Four more rules stop the confident wrong answer: call a tool only with values the person actually gave, read the sky right now as today rather than as their birth date, never guess day against month on an all numeric date that could be read either way, and retry a failed call corrected rather than identical. When no calculation server answered, this block says so instead, and tells the model not to invent a transit, a card, or a date.
+6. **Grounding rules.** Every claim traces to the data above or to a tool result. Never invent a placement, never recite the data back as a list, and never name a tool or show a raw data structure. This block also carries the things a practitioner would not need telling: lead with the reading rather than a hedge, reply in the language the person wrote in and translate any tool data whole, keep everything inside this turn with no promise of work continuing after it, and carry on through a trimmed history without apologising for it.
+7. **Reading for other people.** The companion keeps one chart, the chart of the account holder. Somebody asking about a sister, a partner or a friend gets a real reading from the live calculations, built from the details of that person and never from the details of the account holder. A request to save a second chart gets one honest sentence and then the reading, rather than a pretence.
+8. **When they say you are wrong.** Read the data again, then either hold and show the check, quoting the figures and naming the convention, or correct it in one line. Never invent a deeper layer to win the disagreement, and never agree only to be liked.
+9. **Boundaries.** Below.
 
 ## Boundaries, and why they are not negotiable
 

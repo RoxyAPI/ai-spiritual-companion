@@ -19,16 +19,20 @@ src/
 ├── lib/
 │   ├── ai.ts               which model answers and which one embeds. See companion.md
 │   ├── auth.ts             session helpers and the onboarding gate
+│   ├── chart.ts            a stored chart compressed to the facts a turn can use
+│   ├── chat-limit.ts       per user turn caps, counted off the readings table
 │   ├── mcp.ts              the tools the conversation may call. See companion.md
 │   ├── memory/             recall and remember. See memory.md
 │   ├── prompt.ts           buildSystemPrompt and the tone presets
 │   ├── roxy/               the calculation client and its error guard
-│   └── supabase/           the browser, the server, and the session refresh clients
+│   ├── seo.ts              the one structured data block. See seo.md
+│   ├── supabase/           the server client and the session refresh client
+│   └── utils.ts            cn, and the redirect path sanitizer the confirm route trusts
 ├── types/
 │   ├── database.ts         the schema as TypeScript. Guarded by tests/schema.test.ts
 │   └── index.ts            every other type in the project
 supabase/migrations/        the schema itself
-tests/                      six suites plus one that runs weekly
+tests/                      eight suites plus one that runs weekly
 ```
 
 ## Types live in one place
@@ -62,13 +66,14 @@ Everything the conversation needs comes from Remote MCP servers instead, reached
 
 ## The Supabase boundary
 
-Three clients, one per environment, in `src/lib/supabase/`.
+Two clients, both server side, in `src/lib/supabase/`.
 
-- `client.ts` for the browser, used only by the sign in form and the sign out button.
 - `server.ts` for server components, server actions, and route handlers. It reads and writes the session cookies.
 - `proxy.ts` refreshes the session on every request so a server component never sees an expired one.
 
-They differ only in how they reach cookies. Do not add a fourth, and do not import the browser one on the server.
+They differ only in how they reach cookies. Do not add a third.
+
+**There is no browser client, and that is deliberate.** The sign in form and the sign out button are client components, but neither one talks to Supabase: both call a server action in `src/app/auth/actions.ts` and the session work happens there. So nothing in the browser bundle ever constructs a Supabase client, and the Supabase API port never has to be reachable from a visitor network at all. Adding a browser client would put that port back on the public path, which is a larger change than the round trip it saves.
 
 Every query runs as the signed in user, so row level security is doing the access control and the application code is not repeating it. There is no service role key in this project at all. Adding one would mean any bug in a route handler bypasses every policy at once.
 
@@ -82,6 +87,8 @@ Every query runs as the signed in user, so row level security is doing the acces
 |---|---|
 | `npm run dev` | The development server |
 | `npm run build` | The production build. Must pass with no keys set |
+| `npm start` | Serves a build that has already been made |
+| `npm run format` | Biome, formatting only |
 | `npm run check` | Biome, fixing what it can |
 | `npm run check:ci` | Biome, failing instead of fixing |
 | `npm run lint` | ESLint |
@@ -89,6 +96,8 @@ Every query runs as the signed in user, so row level security is doing the acces
 | `npm test` | The six local suites |
 | `npm run test:drift` | The specification drift suite. Hits the network, runs weekly, never in a pull request |
 | `npm run verify` | The whole gate in the order it runs everywhere else |
+| `npm run db:reset` | Recreates the local database and reapplies every migration |
+| `npm run db:types` | Prints the types the Supabase CLI generates from the local schema, to read against the hand written `src/types/database.ts` |
 
 The order in `verify` is fixed and it is cheapest first: format, lint, types, tests, build. A two minute build should never be the thing that tells you about a missing semicolon. The same order runs on commit and on push through the git hooks, and again on every pull request.
 
@@ -98,7 +107,7 @@ The order in `verify` is fixed and it is cheapest first: format, lint, types, te
 
 | Suite | Asserts |
 |---|---|
-| `schema` | Every table in the migrations has row level security enabled and at least one policy, and `src/types/database.ts` names exactly the tables and columns the migrations create. This is the guard on the security promise in [memory.md](./memory.md). |
+| `schema` | The migrations create exactly the four tables of the memory layer, `charts.user_id` is the primary key, `profiles` and `charts` carry no update or delete policy, every table has row level security enabled with at least one policy and every policy predicate is keyed to `(select auth.uid())`, `match_memories` is declared `security invoker` and never `security definer`, and `src/types/database.ts` names exactly the tables and columns the migrations create. This is the guard on the security promise in [memory.md](./memory.md). |
 | `memory` | `recall` returns recency when no embedding model is configured and searches vectors when one is, both return the same shape, and a failing embedding provider degrades to recency rather than failing the turn or losing the reading. |
 | `mcp` | The default domain set stays lean and leads with Western astrology, the tool selection stays inside the range vendors publish as reliable, the compact flag reaches every call, and the natal chart tool is never handed to the model. |
 | `prompt` | Every tone preset in the type union has a paragraph, the grounding rules and both boundary blocks survive under all of them, and the recalled memories and chart facts reach the prompt. |
@@ -111,7 +120,7 @@ Each of these was validated by planting a deliberate error and watching it fail.
 
 ## House style
 
-- Server components by default. `'use client'` only for the transcript, the composer, the city autocomplete, the theme toggle, and the sign in form.
+- Server components by default. Eight files of ours carry `'use client'`, and that is the whole list: the transcript with its composer (`companion/chat.tsx`), one message (`companion/message.tsx`), the onboarding form and the city autocomplete, the sign in form, the sign out button, the theme provider, and the theme toggle. The shadcn primitives under `components/ui/` ship their own directive and are not counted, because they are unmodified.
 - No `as any`, no hand written interfaces for API responses, no dead code.
 - Comments are for the non obvious why. The default is no comment.
 - Reuse before you add. Check `src/lib/` and `src/components/` before writing a helper that probably already exists.
@@ -129,5 +138,5 @@ Choices that are settled, with the reason, so nobody has to relitigate them from
 | 768 dimensions | Available on every embedding model this template supports, comfortably inside the index limit, and a quarter of the storage of the widest option for no loss that matters at this scale. |
 | The streaming library is on its current major | The route handler composes a stream and the client reads message parts, which is the shape of the current major and not of the one before it. Dependabot holds that major so the core and the provider packages can only move together. |
 | The schema type is hand written | So a jsonb column can be typed as the response it actually holds. The migration contract test is what makes that safe. Reasoning above. |
-| No tool calling, and no agent protocol | The companion has one person, one chart, and one sky, and all three are in the prompt before the model sees the question, so a tool loop would buy nothing and cost a round trip. A different template demonstrates tool calling across every domain. |
+| Tool calling through Remote MCP, but no agent framework | The live half of the calculations is fetched by the model, in a bounded number of steps, so a question that needs today sky gets it and one that does not costs nothing. What is settled is the layer above: no planner, no router, and no second model deciding what to do. One model, one turn, and the memory around it. Reasoning is in [companion.md](./companion.md). |
 | No payments | A template that guesses at your pricing is a template you unpick before you use it. The memory seam is already where a paid line would go. |

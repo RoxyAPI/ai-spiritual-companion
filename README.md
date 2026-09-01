@@ -1,6 +1,12 @@
+<p align="center">
+  <a href="https://roxyapi.com">
+    <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/assets/hero.png" alt="AI Spiritual Companion: a free MIT template for an AI companion with persistent memory, a cached natal chart, and pgvector semantic recall on Supabase, built on RoxyAPI" width="100%">
+  </a>
+</p>
+
 # AI Spiritual Companion
 
-**An open source, MIT licensed template for an AI spiritual companion that remembers each of its users.** Every account gets a natal chart computed exactly once and cached forever, a reading history that grows with every conversation, and semantic recall over that history through pgvector, all stored in a Supabase project the operator owns. The conversation is grounded in live calculations pulled over Remote MCP from 14+ insight domains on one API key, verified against NASA JPL Horizons. Personal content never leaves the operator database: only birth data is ever sent to be calculated. Built with Next.js, TypeScript, Supabase, and the Vercel AI SDK.
+**An open source, MIT licensed template for an AI spiritual companion that remembers each of its users.** It is an AI astrology companion with long term memory: every account gets a natal chart computed exactly once and cached forever, a chat history that grows with every conversation, and semantic recall over that history through pgvector, all stored in a Supabase project the operator owns. The conversation is grounded in live calculations pulled over Remote MCP from 14+ insight domains on one API key, verified against NASA JPL Horizons. Personal content never leaves the operator database: only birth data is ever sent to be calculated. Built with Next.js, TypeScript, Supabase, and the Vercel AI SDK.
 
 [![Get API Key](https://img.shields.io/badge/Get_API_Key-RoxyAPI-14b8a6?style=for-the-badge&logo=key&logoColor=white)](https://roxyapi.com/pricing)
 [![Try the API live](https://img.shields.io/badge/Try_API_Live-Free_in_browser-22c55e?style=for-the-badge&logo=swagger&logoColor=white)](https://roxyapi.com/api-reference)
@@ -25,19 +31,24 @@ Everything in this list is in the repository and runs locally on your machine.
 - **Compact tool responses.** Every calculation is requested in a lossless columnar shape that sends each field name once for a whole array instead of once per row. Measured on a real transits response while building this: 56,662 bytes down to 33,338, a 41 percent reduction, inside the published 40 to 52 percent range. Lower inference cost per turn.
 - **A visible memory.** A panel beside the conversation lists what has been stored, with dates, and states whether recall is currently running by meaning or by recency.
 - **A privacy split you can audit.** Birth date, birth time and coordinates are the only things ever sent to be calculated. Journal entries, moods and every word of every conversation stay in the operator database.
+- **Per user spend limits.** Chat turns are capped per minute and per day, counted against the readings table itself, so the caps hold on serverless hosts where an in memory counter resets per instance. Two environment variables tune them, and the check runs before any model or calculation call, so a blocked turn costs nothing.
 - **MIT, with paid plans welcome.** Memory is the natural premium feature in a companion product, and the seam for gating it is already in the right place.
 
 ## Screenshots
 
-| The conversation, with its memory | The stored chart |
-|---|---|
-| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-light.jpg" alt="The companion conversation beside a panel listing what it remembers"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/chart-light.jpg" alt="The natal chart, read from the database"> |
+In the order somebody actually meets them: the three onboarding steps, the conversation, the chart it reads from, and the landing page last. Both themes ship.
 
-| Onboarding, step one | Onboarding, choosing a voice |
+| Light | Dark |
 |---|---|
-| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-1-welcome-light.jpg" alt="The first onboarding step, explaining why the chart is computed once"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-3-voice-light.jpg" alt="Choosing between four voices, each with a sample"> |
+| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-1-welcome-light.jpg" alt="Onboarding, step one, explaining why the chart is computed once"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-1-welcome-dark.jpg" alt="Onboarding, step one, in dark mode"> |
+| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-2-city-light.jpg" alt="Onboarding, step two, finding the birth city in the autocomplete"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-2-city-dark.jpg" alt="Onboarding, step two, finding the birth city, in dark mode"> |
+| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-2-details-light.jpg" alt="Onboarding, step two, the birth details filled in"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-2-details-dark.jpg" alt="Onboarding, step two, the birth details, in dark mode"> |
+| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-3-voice-light.jpg" alt="Onboarding, step three, choosing a voice, each with a sample"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-3-voice-dark.jpg" alt="Onboarding, step three, choosing a voice, in dark mode"> |
+| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-light.jpg" alt="The companion conversation beside a panel listing what it remembers"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-dark.jpg" alt="The companion conversation and its memory panel, in dark mode"> |
+| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/chart-light.jpg" alt="The natal chart, read from the database"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/chart-dark.jpg" alt="The natal chart, read from the database, in dark mode"> |
+| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/home-light.jpg" alt="The landing page"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/home-dark.jpg" alt="The landing page, in dark mode"> |
 
-Dark mode ships with it: [conversation](https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-dark.jpg), [chart](https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/chart-dark.jpg), [onboarding](https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-1-welcome-dark.jpg), [sign in](https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/signin-dark.jpg), [landing](https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/home-dark.jpg). On a phone: [conversation](https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-mobile-light.jpg), [onboarding](https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-2-details-mobile-light.jpg), [landing](https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/home-mobile-light.jpg).
+Every screen is captured on a phone as well, in both themes, in [public/screenshots](https://github.com/RoxyAPI/ai-spiritual-companion/tree/main/public/screenshots).
 
 ## The problems this solves
 
@@ -85,7 +96,7 @@ npx supabase db reset  # applies supabase/migrations, including pgvector
 cp .env.example .env.local
 ```
 
-`.env.example` documents every variable, what it is for, and where to get it. Five values are required:
+`.env.example` documents every variable, what it is for, and where to get it. Four values are required:
 
 | Variable | Where it comes from |
 |---|---|
@@ -93,7 +104,8 @@ cp .env.example .env.local
 | `GOOGLE_GENERATIVE_AI_API_KEY` | https://aistudio.google.com/apikey, free tier available |
 | `NEXT_PUBLIC_SUPABASE_URL` | step 2 |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | step 2 |
-| `LLM_PROVIDER` | leave it at `google` |
+
+Everything else is optional and already has a working default. `LLM_PROVIDER` is `google` unless you set it. `ROXYAPI_MCP_PRODUCTS` chooses which calculation domains the companion can reach, and `ROXYAPI_MCP_TOOLS` widens or narrows the tools inside them. The Anthropic and OpenAI keys matter only if you switch `LLM_PROVIDER` to one of those.
 
 **4. Run it**
 
@@ -103,9 +115,9 @@ npm run dev
 
 **5. Create an account.** Open http://localhost:3000, press **Start**, and enter any email address. It does not have to be real, and nothing leaves your machine. Open the local mail viewer at **http://127.0.0.1:54324**, open the message that just arrived, and click **Sign in**. That link creates the account and signs you in.
 
-Working over SSH, a container, or a cloud editor with port forwarding? Forward ports **3000** and **54324** and you are done. Sign in, sign out, and the emailed link all run through the app on the server, so the Supabase API port never needs to be reachable from your browser.
+Working over SSH, a container, or a cloud editor with port forwarding? Forward three ports and you are done: **3000** for the app, **54324** for the mail viewer holding your sign in link, and **54323** for Supabase Studio, which the next section uses to show you the stored memory. Sign in, sign out, and the emailed link all run through the app on the server, so the Supabase API port on 54321 never needs to be reachable from your browser.
 
-**6. Onboard.** Three steps: why the chart is computed once, your birth date and time and city, and the voice you want. The chart is calculated at the end of it, one time.
+**6. Onboard.** Three steps: why the chart is computed once, your birth date and time and city, and the voice you want. The last step makes the one real calculation call this template ever makes for that account, a single natal chart request against your key, counted as one request on whichever plan you are on. It never runs again, and everything after it reads the stored chart out of your own database.
 
 **7. Verify the memory.** The next section.
 
@@ -130,6 +142,34 @@ The claim this template makes is that the companion remembers. Proving it takes 
 **5. Watch it recall.** The panel beside the conversation lists what it has stored, with dates, and says whether it is recalling by meaning or by recency. On a phone the same line sits above the transcript.
 
 Two honest notes. Free embedding tiers rate limit hard, so sending several messages quickly can drop recall from meaning to recency for a minute; the reading is still stored and the server logs one line saying so. And Anthropic has no embedding endpoint, so configuring it as the provider means recall is by recency by design.
+
+## When the first run goes wrong
+
+**`npx supabase start` cannot reach Docker.** The local stack is a set of Docker containers, so the Docker daemon has to be running first. Start Docker, then run the command again.
+
+**A port is already taken.** Another Supabase project is running on this machine. Stop it with `npx supabase stop`, or change the ports in `supabase/config.toml`, then start again.
+
+**A `supabase` command says it cannot be found.** Prefix it with `npx`, which is how every Supabase command in this README is written. The CLI is fetched on demand rather than installed globally.
+
+**No email arrives at the sign in screen.** Nothing is actually sent in local development, so no inbox of yours will ever show it. The message is captured on your own machine and is already waiting at http://127.0.0.1:54324. If that page is empty, check that `NEXT_PUBLIC_SUPABASE_URL` in `.env.local` matches the API URL that `npx supabase start` printed.
+
+**The link lands on "That link did not work".** Each link works once and expires, so one you have already opened ends here. Ask for a fresh one. If every link ends here, open the app on http://localhost:3000 rather than http://127.0.0.1:3000, because the sign in link is issued for the first of those.
+
+**Onboarding ends with an error instead of the companion.** The last step makes the one real calculation call, so this is almost always the key. The message on screen names the cause. Add `ROXYAPI_KEY` to `.env.local` and restart `npm run dev`, because environment variables are read once at startup.
+
+**The companion answers but never seems to remember.** Open `readings` in Supabase Studio. Rows there and nothing in `memories` means the embedding call is failing, and the server log says so in one line. Free embedding tiers rate limit hard, and recall falls back to recency rather than failing, so the answer still arrives.
+
+**The reply never starts.** Check the model key. `LLM_PROVIDER` and the matching provider key have to agree, and the server log carries the provider error.
+
+## Is this a ChatGPT for astrology?
+
+Same conversational shape, with two differences that decide the answer quality.
+
+A general chatbot answers about astrology from what a model absorbed while training, and it meets you as a stranger every session. This one answers from calculations and starts every session already knowing you. Positions come from an ephemeris verified against NASA JPL Horizons rather than from anything generated, so the same moment asked twice returns the same answer, and a placement is never improvised.
+
+The second difference is where the past lives. The chat history, every reading shown, and the vectors that index them sit in a database the operator runs, which is what makes this an AI companion with memory rather than a chat window that forgets between visits. Ask it in March what you were weighing up in January and it answers from stored rows, not from a context window.
+
+So: a ChatGPT for astrology that remembers you, grounded in verified calculations, with the memory owned by whoever deploys it.
 
 ## How does the AI companion remember users
 
@@ -187,6 +227,18 @@ Everything else is reached by the model over Remote MCP at `https://roxyapi.com/
 
 The default connects a few domains rather than all 14+, because every connected tool is a definition placed in front of the model on every turn and vendors document selection accuracy falling as that list grows. That is standard agent engineering and not a limit of the platform: register the domains your agent needs. Widening it is one comma, and the reasoning with sources is in [docs/companion.md](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/docs/companion.md).
 
+## How is model and API spend protected
+
+Every chat turn is rate limited per user: a per minute cap and a per day cap, both tunable through `CHAT_TURNS_PER_MINUTE` and `CHAT_TURNS_PER_DAY`, both checked before any model or calculation call is made. A person over the limit receives a polite 429 and costs nothing. Setting either variable to 0 pauses the chat entirely.
+
+## Will rate limiting work on Vercel and other serverless hosts
+
+Yes, and that is a deliberate design choice. Serverless platforms run many short lived instances, so an in memory counter would multiply by instance count and reset on every cold start. The limits here are counted against the `readings` table in your own Postgres, the same table every turn already writes to, so they are exact across any number of instances, with no extra store, no new dependency, and one indexed query per turn.
+
+## Does recall stay accurate as history grows
+
+Yes. Vector indexes find nearest neighbours before the per user filter applies, so on a naive setup recall quietly thins as other rows crowd the index. The `match_memories` function runs with `hnsw.iterative_scan` set to strict order, so the scan keeps walking the index until the requested number of this user's rows survive the filter, in exact distance order.
+
 ## Stack
 
 | Layer | Choice | Version |
@@ -220,6 +272,8 @@ Everything the conversation needs comes from Remote MCP instead. The default con
 **The personality**: `src/lib/prompt.ts` holds four voices and the rules that survive all of them. Adding a fifth is three steps, and the suite tells you if you miss one.
 
 **Which domains it can reach**: `ROXYAPI_MCP_PRODUCTS`. Every available slug is listed in `.env.example`.
+
+**Family and friend profiles**: the companion keeps one chart, the chart of the account holder, and reads for anybody else live from the details given in the conversation. If you want those people remembered too, add a `people` table with its own row level security keyed to the owner, store a name and birth details per row, and pass the matching row into the turn the same way the profile is passed today. The compatibility, horoscope, transit and tarot tools already work for a third person, so this is storage rather than new calculation work.
 
 **Everything else**: the `docs/` folder is a specification rather than an afterthought, and [docs/memory.md](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/docs/memory.md) is the one to read first.
 

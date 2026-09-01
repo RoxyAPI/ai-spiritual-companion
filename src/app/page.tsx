@@ -26,7 +26,7 @@ const ARGUMENT = [
 const TURN = [
   'Your stored chart is read from the database. No calculation, no waiting.',
   'What you said before is searched by meaning, and the closest few come back.',
-  'The sky today is computed live against your birth data.',
+  'When the question calls for it, the sky today is computed live against your birth data.',
   'All of it is handed to the model as grounded context, and the reply streams.',
   'The reading is appended to your history, so the next conversation starts further along.',
 ];

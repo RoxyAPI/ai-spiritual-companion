@@ -6,7 +6,7 @@ import type { CompanionConfig } from '@/types';
  * `docs/design.md` explains why.
  */
 export const config: CompanionConfig = {
-  name: 'Lumen',
+  name: 'Mira',
   tagline: 'A companion that remembers you',
   description:
     'An AI spiritual companion built on your own database. Your chart is computed once and kept, every reading is remembered, and nothing you write ever leaves for a calculation.',

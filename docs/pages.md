@@ -1,6 +1,6 @@
 # Pages
 
-Five screens and two API routes. Every screen either gets somebody to the conversation or is the conversation.
+Six screens, one route handler with no interface, and two API routes. Every screen either gets somebody to the conversation or is the conversation.
 
 ## Routes
 
@@ -39,7 +39,7 @@ Four bands, composed from `Section`.
 3. **How a turn works.** The seven step flow from [memory.md](./memory.md), compressed to five, as a numbered list. Concrete, no diagram.
 4. **What it does not do.** Short and honest: no data leaves for a calculation except a birth date and a place, no conversation is ever sent to the calculation service, no payments are included. Wash from the end corner.
 
-Footer carries the license, the source link, and the support link.
+Footer carries the product name, the credit naming who computes the positions and that they are verified against NASA JPL Horizons, and links to the source and to support.
 
 ### `/onboarding`
 

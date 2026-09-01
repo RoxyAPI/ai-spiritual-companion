@@ -14,8 +14,8 @@
     "test": "vitest run --exclude tests/spec-drift.test.ts",
     "test:drift": "vitest run tests/spec-drift.test.ts",
     "verify": "npm run check:ci && npm run lint && npm run typecheck && npm test && npm run build",
-    "db:reset": "supabase db reset",
-    "db:types": "supabase gen types typescript --local",
+    "db:reset": "npx supabase db reset",
+    "db:types": "npx supabase gen types typescript --local",
     "prepare": "lefthook install"
   },
   "dependencies": {

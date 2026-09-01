@@ -92,17 +92,6 @@ export function resolveProducts(raw?: string): string[] {
   return slugs.map((slug) => slug.replace(/-api$/, ''));
 }
 
-/**
- * Wraps every tool so `compact: true` is part of the arguments whichever way the model calls it.
- *
- * Compact is an opt in per call flag on every RoxyAPI tool. It returns the same data with each
- * field name sent once for a whole array instead of once per row, which is lossless and typically
- * 40 to 52 percent fewer tokens on a detailed chart. Fewer tokens in the tool result is less to pay
- * for and less for the model to read; it changes nothing about how many requests are counted.
- *
- * The system prompt asks for the same thing in words. Both are deliberate: this wrapper makes it
- * certain, and the prompt line keeps the behaviour visible to somebody who removes the wrapper.
- */
 /** Narrows a tool set to the configured selection, minus anything the app must own itself. */
 export function selectTools(tools: ToolSet, raw?: string): ToolSet {
   const requested = raw
@@ -119,6 +108,17 @@ export function selectTools(tools: ToolSet, raw?: string): ToolSet {
   ) as ToolSet;
 }
 
+/**
+ * Wraps every tool so `compact: true` is part of the arguments whichever way the model calls it.
+ *
+ * Compact is an opt in per call flag on every RoxyAPI tool. It returns the same data with each
+ * field name sent once for a whole array instead of once per row, which is lossless and typically
+ * 40 to 52 percent fewer tokens on a detailed chart. Fewer tokens in the tool result is less to pay
+ * for and less for the model to read; it changes nothing about how many requests are counted.
+ *
+ * The system prompt asks for the same thing in words. Both are deliberate: this wrapper makes it
+ * certain, and the prompt line keeps the behaviour visible to somebody who removes the wrapper.
+ */
 export function withCompactResults(tools: ToolSet): ToolSet {
   return Object.fromEntries(
     Object.entries(tools).map(([name, tool]) => [

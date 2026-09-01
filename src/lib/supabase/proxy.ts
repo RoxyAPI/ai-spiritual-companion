@@ -22,12 +22,17 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
           response = NextResponse.next({ request });
           for (const { name, value, options } of cookiesToSet) {
             response.cookies.set(name, value, options);
           }
+          // These are the no store directives the library hands over with a refreshed auth cookie,
+          // and they have to be applied to the response that is actually returned. A response
+          // carrying a session cookie that a CDN is allowed to cache is one person signed in as
+          // another. This loop belongs after the reassignment above, never before it.
+          for (const [key, value] of Object.entries(headers)) response.headers.set(key, value);
         },
       },
     },

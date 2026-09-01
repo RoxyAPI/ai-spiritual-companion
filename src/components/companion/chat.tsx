@@ -48,8 +48,8 @@ export function Chat({ openers, greeting }: { openers: string[]; greeting: strin
             <div className="space-y-2">
               <p className="font-display text-2xl">{greeting}</p>
               <p className="text-sm leading-relaxed text-muted-foreground">
-                Your chart is loaded and today&rsquo;s sky has been measured against it. Ask
-                anything, or start with one of these.
+                Your chart is loaded and the sky today has been measured against it. Ask anything,
+                or start with one of these.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -107,8 +107,17 @@ export function Chat({ openers, greeting }: { openers: string[]; greeting: strin
           className="resize-none"
           aria-label="Message"
         />
-        <Button type="submit" size="icon" disabled={busy || !input.trim()} aria-label="Send">
-          <SendHorizontal className="size-4" />
+        {/* A square the same height as the composer at rest, so the pair reads as one control. The
+            form is items-end, so it stays anchored to the bottom of the field as the field grows.
+            Sixteen is also what clears the forty four pixel minimum for a target on a phone. */}
+        <Button
+          type="submit"
+          size="icon"
+          className="size-16"
+          disabled={busy || !input.trim()}
+          aria-label="Send"
+        >
+          <SendHorizontal className="size-5" />
         </Button>
       </form>
     </div>

@@ -86,7 +86,7 @@ Four tables, all with row level security keyed to the signed in user: `profiles`
 
 ## Conventions
 
-- Server components by default. `'use client'` only for the transcript, the composer, the onboarding steps, the city autocomplete, the theme toggle, and the sign in form.
+- Server components by default. `'use client'` only for the transcript, the message, the onboarding steps, the city autocomplete, the theme provider, the theme toggle, the sign in form, and the sign out button. That is eight files, and the shadcn primitives under `components/ui/` carry their own directive.
 - **A page never sets a width, a gutter, or a section padding.** Compose `<Section>`; it owns the full width band, the optional wash, the shared container, and the rhythm. The width is declared once, as `.site-container`, and a test fails if anything redeclares it. The conversation screen is the single documented exception and it owns its height, not its width.
 - **Types live in `src/types/` and nowhere else.** API response types are never among them: import those from `@roxyapi/sdk`, which generates them from the live spec.
 - No `as any`, no hand written interfaces for API responses, no dead code.

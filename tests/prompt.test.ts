@@ -49,7 +49,7 @@ describe('every tone in the type union has a voice', () => {
 
 describe('the boundaries survive every tone', () => {
   for (const tone of TONES) {
-    const prompt = buildSystemPrompt({ ...context, tone }, 'Lumen');
+    const prompt = buildSystemPrompt({ ...context, tone }, 'Mira');
 
     it(`${tone} keeps the not medical, not legal, not financial rule`, () => {
       expect(prompt).toContain('not a doctor, a lawyer, or a financial adviser');
@@ -71,10 +71,10 @@ describe('the boundaries survive every tone', () => {
 });
 
 describe('everything the turn knows reaches the prompt', () => {
-  const prompt = buildSystemPrompt(context, 'Lumen');
+  const prompt = buildSystemPrompt(context, 'Mira');
 
   it('carries the product name and the person', () => {
-    expect(prompt).toContain('You are Lumen');
+    expect(prompt).toContain('You are Mira');
     expect(prompt).toContain('Rosa');
   });
 
@@ -93,7 +93,7 @@ describe('everything the turn knows reaches the prompt', () => {
   });
 
   it('says plainly when there is no memory yet rather than leaving a blank', () => {
-    const first = buildSystemPrompt({ ...context, memories: [] }, 'Lumen');
+    const first = buildSystemPrompt({ ...context, memories: [] }, 'Mira');
     expect(first).toContain('first conversation');
     // A greeting must not become the whole reply on turn one.
     expect(first).toContain('Do not spend the reply on the greeting');
@@ -113,8 +113,117 @@ describe('everything the turn knows reaches the prompt', () => {
   });
 
   it('refuses to invent anything when no calculation server answered', () => {
-    const offline = buildSystemPrompt({ ...context, hasTools: false }, 'Lumen');
+    const offline = buildSystemPrompt({ ...context, hasTools: false }, 'Mira');
     expect(offline).toContain('do not invent a transit, a card, or a date');
     expect(offline).not.toContain('Always pass compact true');
+  });
+});
+
+/**
+ * The rules a practitioner would not need telling.
+ *
+ * Each of these came from a real conversation going wrong, so each is pinned separately: a block
+ * quietly dropped from the assembled prompt is invisible until somebody hits the same wall again.
+ */
+describe('reading for somebody other than the account holder', () => {
+  const prompt = buildSystemPrompt(context, 'Mira');
+
+  it('says the kept chart belongs to one person', () => {
+    expect(prompt).toContain('the chart you keep is theirs alone');
+  });
+
+  it('offers the live readings that do work for a third person', () => {
+    expect(prompt).toContain('a compatibility reading between the two of them');
+    expect(prompt).toContain('the sky right now against the other person birth details');
+  });
+
+  it('makes it use the details of the other person rather than the account holder', () => {
+    expect(prompt).toContain('Resolve the other person city first');
+    expect(prompt).toContain(
+      'Never quietly substitute the details of the person you are talking to',
+    );
+  });
+
+  it('answers a request to save a second chart honestly and in one sentence', () => {
+    expect(prompt).toContain('Keeping a second chart is the one thing this space cannot do');
+    expect(prompt).toContain('say so plainly in one sentence');
+  });
+});
+
+describe('the input rules that stop a confident wrong answer', () => {
+  const prompt = buildSystemPrompt(context, 'Mira');
+
+  it('never guesses day against month on an all numeric date', () => {
+    expect(prompt).toContain('never guess the order');
+    expect(prompt).toContain('naming both readings of it');
+    // A date that is already unambiguous must not trigger a needless question.
+    expect(prompt).toContain('A number above 12 or a spelled month settles it on its own');
+  });
+
+  it('never invents a tool input', () => {
+    expect(prompt).toContain('Call a tool only with values the person actually gave you');
+  });
+
+  it('reads the sky now as today rather than as the birth date', () => {
+    expect(prompt).toContain('The sky right now means today');
+    expect(prompt).toContain('It never means their birth date');
+  });
+
+  it('treats a when did or when will question as a calculation for that date', () => {
+    expect(prompt).toContain('never a date recalled from memory');
+  });
+
+  it('retries a failed call corrected rather than identical', () => {
+    expect(prompt).toContain('Never send an identical call that has already failed');
+  });
+});
+
+describe('holding a reading under pressure', () => {
+  const prompt = buildSystemPrompt(context, 'Mira');
+
+  it('re-reads the data before answering a challenge', () => {
+    expect(prompt).toContain('read the data again before you answer');
+  });
+
+  it('shows the check rather than caving', () => {
+    expect(prompt).toContain('quote the exact figures');
+    expect(prompt).toContain('name the convention you used');
+  });
+
+  it('corrects itself in one line when the data does not back it', () => {
+    expect(prompt).toContain('correct it in one line');
+  });
+
+  it('never fabricates depth or agrees to be liked', () => {
+    expect(prompt).toContain('Never invent a deeper layer to end a disagreement');
+    expect(prompt).toContain('never agree with somebody only to be liked');
+  });
+});
+
+describe('answering like a practitioner rather than an assistant', () => {
+  const prompt = buildSystemPrompt(context, 'Mira');
+
+  it('leads with the reading and never opens with a hedge', () => {
+    expect(prompt).toContain('Lead with the reading');
+    expect(prompt).toContain('never refuse to interpret something the data supports');
+  });
+
+  it('mirrors the language of the person and translates tool data whole', () => {
+    expect(prompt).toContain('Reply in the language the person writes in');
+    expect(prompt).toContain('never leave a fragment sitting in the original');
+  });
+
+  it('keeps everything inside this turn with no promise of later work', () => {
+    expect(prompt).toContain('Everything you say happens in this turn');
+    expect(prompt).toContain('never promise a result shortly');
+  });
+
+  it('carries on through a trimmed history without apologising', () => {
+    expect(prompt).toContain('may have been trimmed to fit');
+    expect(prompt).toContain('never apologise for it');
+  });
+
+  it('never names its tools or shows a raw data structure', () => {
+    expect(prompt).toContain('Never name your tools and never show a raw data structure');
   });
 });
