@@ -38,6 +38,14 @@ The publishable key is public by design. It is safe only because row level secur
 
 pgvector ships with Supabase as an extension. The first migration enables it; there is nothing to install.
 
+### The sign in email
+
+`supabase/templates/magic-link.html` replaces the stock template, and `supabase/config.toml` points at it. The reason is worth knowing before you change either.
+
+The stock link goes to the Supabase verify endpoint, which then redirects to whatever `site_url` says, so it never reaches the `/auth/confirm` route this template ships and it can land on a different origin than the one holding the session cookie. The template here builds the link against `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}`, so one route handler covers local and hosted alike.
+
+Two settings hold that together, and both are in `config.toml`: `site_url` is the origin the app runs on, and `additional_redirect_urls` has to contain the confirm route. On a hosted project the same two live in the Authentication settings of the dashboard, and forgetting the second is why a deployed magic link bounces back to localhost.
+
 ## The language model
 
 Pick one with `LLM_PROVIDER`. The comparison lives here; the model identifiers live in `src/lib/ai.ts`.

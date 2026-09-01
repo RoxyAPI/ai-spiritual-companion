@@ -101,7 +101,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-**5. Create an account.** Open http://localhost:3000, press **Start**, and enter any email address. It does not have to be real. Open the local mail viewer at **http://127.0.0.1:54324**, open the message that just arrived, and click the link. That link creates the account and signs you in.
+**5. Create an account.** Open http://localhost:3000, press **Start**, and enter any email address. It does not have to be real, and nothing leaves your machine. Open the local mail viewer at **http://127.0.0.1:54324**, open the message that just arrived, and click **Sign in**. That link creates the account and signs you in.
 
 **6. Onboard.** Three steps: why the chart is computed once, your birth date and time and city, and the voice you want. The chart is calculated at the end of it, one time.
 

@@ -95,6 +95,12 @@ describe('everything the turn knows reaches the prompt', () => {
   it('says plainly when there is no memory yet rather than leaving a blank', () => {
     const first = buildSystemPrompt({ ...context, memories: [] }, 'Lumen');
     expect(first).toContain('first conversation');
+    // A greeting must not become the whole reply on turn one.
+    expect(first).toContain('Do not spend the reply on the greeting');
+  });
+
+  it('tells the model to answer what was asked rather than the sky in general', () => {
+    expect(prompt).toContain('Answer the question that was asked');
   });
 
   it('tells the model to ask for the compact response shape on every calculation', () => {
