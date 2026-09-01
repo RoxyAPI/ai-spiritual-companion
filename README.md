@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://roxyapi.com">
-    <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/assets/hero.png" alt="AI Spiritual Companion: a free MIT template for an AI companion with persistent memory, a cached natal chart, and pgvector semantic recall on Supabase, built on RoxyAPI" width="100%">
+    <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/assets/hero.png" alt="AI Spiritual Companion: a free MIT template for an AI companion that remembers every user, with pgvector semantic recall and full chat history on Supabase, built on RoxyAPI" width="100%">
   </a>
 </p>
 
