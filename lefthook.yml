@@ -1,0 +1,54 @@
+# The local quality gate. It mirrors .github/workflows/ci.yml exactly, so nothing continuous
+# integration would reject can reach a push.
+#
+# The order is fixed and it is cheapest first: formatting is mechanical and auto fixed, linting
+# catches the framework mistakes, types catch the wrong shapes, tests catch the wrong behaviour, and
+# the build is the last and slowest word. Running it the other way round means waiting two minutes
+# for a build to tell you about a missing semicolon.
+#
+# Installed by the prepare script on npm install.
+
+pre-commit:
+  parallel: true
+  commands:
+    # Format and organize imports on staged files only, then restage what was fixed.
+    format:
+      glob: "*.{ts,tsx,json}"
+      run: npx biome check --fix --staged --no-errors-on-unmatched
+      stage_fixed: true
+
+    # The framework rules Biome does not cover: hooks, images, accessibility.
+    lint:
+      glob: "*.{ts,tsx}"
+      run: npm run lint
+
+    # The whole project, not just staged files: a change in one file breaks types in another.
+    typecheck:
+      run: npm run typecheck
+
+pre-push:
+  parallel: false
+  commands:
+    format:
+      run: npm run check:ci
+      priority: 1
+
+    lint:
+      run: npm run lint
+      priority: 2
+
+    typecheck:
+      run: npm run typecheck
+      priority: 3
+
+    # The five drift guards: the schema and its policies, the memory seam, the prompt, the error
+    # contract, and the palette.
+    test:
+      run: npm test
+      priority: 4
+
+    # Builds with no key on purpose. Continuous integration has no secrets, and a fork must be able
+    # to deploy before it has bought anything. If this needs a key, the product has a bug.
+    build:
+      run: env -u ROXYAPI_KEY npm run build
+      priority: 5

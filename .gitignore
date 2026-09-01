@@ -29,8 +29,10 @@ npm-debug.log*
 yarn-debug.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files. The example is the one a forker actually needs, so it is negated back in: without
+# this line `.env*` silently keeps it out of the repository.
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -45,5 +47,3 @@ next-env.d.ts
 
 # Maintainer-facing agent notes, not part of the public template
 CLAUDE.md
-reply.md
-sql.md

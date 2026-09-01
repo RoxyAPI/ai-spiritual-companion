@@ -7,10 +7,10 @@ Five screens and two API routes. Every screen either gets somebody to the conver
 | Route | Access | What it does |
 |---|---|---|
 | `/` | public | The landing page. What the product is, why memory is the difference, and one call to action. Redirects a signed in visitor to their next step. |
-| `/auth/login` | public | Email field, one button, a magic link. Nothing else. |
+| `/auth/login` | public | What the product does on one side, one email field and one button on the other. A magic link creates the account and signs the person in. |
 | `/auth/confirm` | public, no UI | Route handler. Exchanges the link token for a session and forwards to `/onboarding` or `/companion`. |
 | `/auth/error` | public | Where a stale or already used link lands, with a link back to try again. |
-| `/onboarding` | signed in, no profile | Name, birth date, birth time, birth city, tone. Submitting it geocodes once, computes the chart once, and stores both. |
+| `/onboarding` | signed in, no profile | Three guided steps. Finishing it geocodes once, computes the chart once, and stores both. |
 | `/companion` | signed in, onboarded | The conversation. |
 | `/chart` | signed in, onboarded | The stored natal chart, rendered from the database with no calculation call. |
 | `/api/chat` | signed in | POST. The streaming turn. See [companion.md](./companion.md). |
@@ -43,21 +43,28 @@ Footer carries the license, the source link, and the support link.
 
 ### `/onboarding`
 
-One card, one form, one submit. Fields in order: display name, birth date, birth time, birth city, tone preset.
+Three steps and a moment, in one card, with a step indicator across the top.
+
+| Step | What it does |
+|---|---|
+| 1, why once | Explains that a chart is a photograph of one moment, so it is calculated once and kept. Somebody is about to be asked for their birth time by a stranger, and this is the paragraph that earns it. |
+| 2, birth details | Name, date, time, and the city autocomplete. Continue stays disabled, and says why, until all four are filled. |
+| 3, voice | The four tones as selectable cards, each showing a line of how it actually sounds. Hearing the voice beats reading its adjective. |
+| The moment | While the chart is computed, the card says what is happening: placing every body at the moment you were born, once, and then it is yours. |
+
+Nothing is submitted before the last step. Values live in React state rather than hidden inputs, so a field cannot be half filled and invisible, and the final action builds the form data and calls the server action once.
 
 **The city field is an autocomplete, never a coordinate input.** Typing three characters queries `/api/cities`, results show city, province, and country because that is what separates two places with the same name, and choosing one captures the latitude, longitude, and IANA timezone silently. A person is never asked for a number they would have to look up. This is the rule that matters most on this screen and the reason the route exists.
 
-Selection state is split from pending state: the chosen city stays chosen until a new one is picked, so the label never updates ahead of the value under it.
+Selection state is split from pending state: the chosen city stays chosen until a new one is picked, so the label never updates ahead of the value under it. A superseded search is aborted and an abort is not a failure, but a real failure says so, because silently showing nothing reads as "your birthplace is not in there".
 
-Submit runs a server action that validates, writes the profile, computes the chart once, and redirects. It is the only place in the product that calls the natal chart endpoint.
-
-The card holding the autocomplete needs `overflow-visible`, or the dropdown is clipped by the card.
+Submitting runs a server action that validates, writes the profile, computes the chart once, and redirects. It is the only place in the product that calls the natal chart endpoint.
 
 ### `/companion`
 
-Header row with the person's name, their tone, and a link to their chart. Then the transcript, then the composer. Layout rules are in [design.md](./design.md), including why this screen owns its height.
+The transcript and its composer, with a panel beside them listing what has been stored, by date, and saying whether recall is currently running by meaning or by recency. On a narrow screen the panel is replaced by one line above the transcript, because the memory is the product and a phone is where most people will meet it. Layout rules are in [design.md](./design.md), including why this screen owns its height.
 
-An empty transcript shows three suggested openers rather than a blank box, and each one is a question the companion can answer well because the chart and the sky are already in its context.
+An empty transcript greets the person by name, says the chart is loaded, and offers three openers rather than showing a blank box. The greeting changes once there is a history, because a returning visitor should not be welcomed like a new one.
 
 ### `/chart`
 

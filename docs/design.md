@@ -66,6 +66,8 @@ Eyebrow treatment, used above section headings and inside buttons: uppercase, 12
 
 `100svh` rather than `100vh` is deliberate. On mobile browsers `100vh` includes the collapsing address bar, so the composer sits below the fold until the user scrolls, which on a chat screen is the whole interface being broken. Every other page is ordinary document flow.
 
+One consequence, which is intended rather than a bug to fix: the footer sits just below the fold on this route, because the page is the header plus a full viewport column plus the footer. The composer is the last thing in view, which is the thing that matters. Do not shrink the column to fit the footer in, and do not remove the footer from one route.
+
 ## Messages
 
 The transcript is the product surface, so it gets stated rules rather than being left to whoever edits it next.
@@ -74,7 +76,7 @@ The transcript is the product surface, so it gets stated rules rather than being
 - Bubbles cap at `max-w-[42rem]` so a long answer stays readable on a wide screen. Measure beats width.
 - The companion renders markdown, because a language model writes markdown whether or not you asked. The person renders as plain text.
 - Waiting is a small spinner on the companion side. Never a shimmer, never a bouncing dot animation, never a fake typing indicator.
-- Recalled memory is shown, not hidden. A small line above the answer naming what the companion remembered is the entire point of the product being visible, and hiding it makes the product look like every other chat box.
+- The memory is shown, not implied. A panel beside the transcript lists what the companion has stored, with dates, and states whether recall is running by meaning or by recency. It is the whole point of the product made visible, and hiding it makes this look like every other chat box.
 
 ## Dark mode
 
@@ -94,5 +96,5 @@ The toggle renders both icons and lets `dark:` classes choose between them, and 
 | Grain, one wash, no gradients | Printed tactility reads made. Gradient meshes read generated. |
 | Light mode default, system respected | Every researched palette source in this niche leads light and airy, and a companion should not open at night unless the person is in it. |
 | `100svh` on the conversation screen | `100vh` puts the composer under the mobile address bar, which breaks the only control that matters. |
-| Recalled memory is visible in the transcript | The memory is the product. A product whose value is invisible is a product nobody can tell apart from a chat box. |
+| The stored memory sits beside the transcript | The memory is the product, and a product whose value is invisible is one nobody can tell apart from a chat box. A panel rendered on the server also needs no streaming plumbing to show it. |
 | Never rerun the shadcn initializer | It rewrites `globals.css` and destroys the palette. Add components with the add command only; the design tokens test is the tripwire. |

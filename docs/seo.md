@@ -17,7 +17,7 @@ The signed in routes export `robots: { index: false, follow: false }` in their m
 
 The root layout sets `metadataBase` from `config.siteUrl`, a title template, the description from `config.description`, and the Open Graph and card defaults. Every page below it sets only its own title and description, and inherits everything else.
 
-`config.siteUrl` must be your real domain before you deploy. A canonical URL pointing at somebody else's domain is worse than no canonical URL, and a social card built on the wrong origin does not load.
+`config.siteUrl` must be your real domain before you deploy. A canonical URL pointing at a domain belonging to somebody else is worse than no canonical URL, and a social card built on the wrong origin does not load.
 
 ## Structured data
 

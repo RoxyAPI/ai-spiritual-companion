@@ -10,7 +10,7 @@ Copy `.env.example` to `.env.local`. Nothing here is ever prefixed `NEXT_PUBLIC_
 |---|---|---|
 | `ROXYAPI_KEY` | yes | Your RoxyAPI key. Server side only. It is read in one module and that module cannot be imported from the browser. Get one at https://roxyapi.com/pricing |
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Your Supabase project URL. Public by design. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | Your Supabase anon key. Public by design, and safe only because row level security is on every table. See [memory.md](./memory.md). |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | Your Supabase publishable key. Public by design, and safe only because row level security is on every table. See [memory.md](./memory.md). |
 | `LLM_PROVIDER` | no | `google` (default), `anthropic`, or `openai`. See [companion.md](./companion.md). |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | with `google` | Free tier available. Covers chat and embeddings with one key. |
 | `ANTHROPIC_API_KEY` | with `anthropic` | Chat only. Recall falls back to recency. |
@@ -36,7 +36,7 @@ One file, `src/config/companion.config.ts`, typed against `CompanionConfig` in `
 
 Nothing about colours, fonts, or layout lives here. Those are in `globals.css` and are covered by [design.md](./design.md), because a colour that can be set from a config file is a colour that has to be validated at runtime for no benefit.
 
-`tests/config-contract.test.ts` asserts the config satisfies its type and that `recallCount` is inside a sane range, so a fork that sets it to 400 fails the suite instead of quietly overflowing the context window.
+There is no separate contract test for this file, because there are no feature toggles to hold to routes: the type checker already rejects a missing field or a tone that does not exist, and that is the whole contract.
 
 ## Supabase setup
 
@@ -47,7 +47,7 @@ npx supabase start
 npx supabase db reset
 ```
 
-The CLI prints an API URL and an anon key. Those two values are your `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for local work.
+The CLI prints an API URL and a publishable key. Those two values are your `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for local work.
 
 Hosted, for a deployment: create a project, then link and push.
 
@@ -56,7 +56,7 @@ npx supabase link --project-ref <your-project-ref>
 npx supabase db push
 ```
 
-The URL and anon key are in the project API settings. Full deployment notes are in [integrations.md](./integrations.md).
+The URL and the publishable key are in the project API settings. Full deployment notes are in [integrations.md](./integrations.md).
 
 ## What is deliberately not configurable
 

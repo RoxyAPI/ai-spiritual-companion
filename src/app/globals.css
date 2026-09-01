@@ -1,0 +1,196 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans-var);
+  --font-display: var(--font-display-var);
+  --font-heading: var(--font-display-var);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+Ink and gold on warm paper, and a deep night sky after dark. One palette, two blocks, every value
+picked rather than inverted. `.dark` is written by next-themes. Recolouring the whole product means
+editing these two blocks and nothing else, and tests/design-tokens.test.ts fails if a token is
+missing from either. Reasoning and the contrast rule are in docs/design.md.
+*/
+:root {
+  --radius: 0.875rem;
+  --header-h: 3.75rem;
+  --background: #FAF6EC;
+  --foreground: #14232E;
+  --card: #F1EADB;
+  --card-foreground: #14232E;
+  --popover: #F1EADB;
+  --popover-foreground: #14232E;
+  --primary: #254B5A;
+  --primary-foreground: #F6F2E6;
+  --secondary: #F1EADB;
+  --secondary-foreground: #14232E;
+  --muted: #F1EADB;
+  --muted-foreground: #5C6A76;
+  --accent: #B89D62;
+  --accent-foreground: #14232E;
+  --destructive: #B23A38;
+  --border: #E4DBC6;
+  --input: #E4DBC6;
+  --ring: #254B5A;
+}
+
+.dark {
+  --background: #0B1826;
+  --foreground: #EFE7D3;
+  --card: #1B2A39;
+  --card-foreground: #EFE7D3;
+  --popover: #1B2A39;
+  --popover-foreground: #EFE7D3;
+  --primary: #C9A96B;
+  --primary-foreground: #16222E;
+  --secondary: #1B2A39;
+  --secondary-foreground: #EFE7D3;
+  --muted: #1B2A39;
+  --muted-foreground: #92A4B2;
+  --accent: #99BAD7;
+  --accent-foreground: #16222E;
+  --destructive: #E4736B;
+  --border: #263A4C;
+  --input: #263A4C;
+  --ring: #C9A96B;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display font-normal tracking-tight;
+  }
+}
+
+@layer components {
+  /*
+  The measure of the product, declared ONCE. Every full width band paints its background edge to
+  edge and then puts its content inside this, which is why a washed band can bleed to the viewport
+  while its text still lines up with the wordmark above it. Change the width here and everything
+  moves together. tests/design-tokens.test.ts fails if anything else declares a page width.
+  */
+  .site-container {
+    @apply mx-auto w-full max-w-5xl px-4 sm:px-6;
+  }
+
+  /* Uppercase micro label above a heading and inside a button. */
+  .eyebrow {
+    @apply text-xs font-medium uppercase tracking-[0.2em];
+  }
+
+  /* One soft wash per band, bleeding from a corner. Never a two stop diagonal gradient. */
+  .wash {
+    position: relative;
+    isolation: isolate;
+  }
+  .wash::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      70% 60% at 12% 0%,
+      color-mix(in srgb, var(--accent) 20%, transparent),
+      transparent 70%
+    );
+  }
+  .wash-end::before {
+    background: radial-gradient(
+      65% 55% at 92% 100%,
+      color-mix(in srgb, var(--primary) 14%, transparent),
+      transparent 70%
+    );
+  }
+
+  /* The companion writes markdown whether or not it was asked to, so it has to render. */
+  .prose-reply {
+    @apply text-sm leading-relaxed;
+  }
+  .prose-reply p + p {
+    @apply mt-3;
+  }
+  .prose-reply ul,
+  .prose-reply ol {
+    @apply mt-3 space-y-1 pl-5;
+  }
+  .prose-reply ul {
+    @apply list-disc;
+  }
+  .prose-reply ol {
+    @apply list-decimal;
+  }
+  .prose-reply strong {
+    @apply font-medium;
+  }
+  .prose-reply em {
+    @apply italic;
+  }
+  .prose-reply a {
+    @apply underline underline-offset-2;
+  }
+}
+
+/*
+Film grain across the whole page. This is what keeps the surface feeling printed rather than
+rendered, and it is the reason the design needs no gradients. Pointer events are off, so it never
+intercepts a click.
+*/
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

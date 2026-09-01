@@ -87,7 +87,11 @@ Semantic recall needs an embedding model. Two of the three supported chat provid
 
 When no embedding model is configured, `recall` returns the most recent `readings` rows instead of searching `memories`, and `remember` writes the reading and skips the embedding. The companion still remembers, it just remembers chronologically rather than thematically. The tutorial this template implements is explicit that a timestamped reading history is already a strong companion, so this is a documented mode, not a broken one.
 
-`getEmbeddingModel()` in `src/lib/memory/embeddings.ts` returns the model or `null`, and it is the only place that decision is made. Read that function, not the provider table, when you want to know what will happen.
+**There is a third way onto the recency path, and it is the one that actually happens: the embedding call fails.** Free tiers rate limit embeddings hard, and this product asks for two embeddings per turn, one to search with and one to store. So `recall` catches a failing embedding and falls back to recency rather than failing the turn, and `remember` stores the reading first and treats a failed index entry as a warning rather than an error, because the row it would have pointed at is already safe and an index can be rebuilt from rows.
+
+The rule underneath both: **an embedding provider having a bad minute costs the quality of one recall, never an answer and never a history.** Both paths log, because a companion that quietly stopped remembering looks exactly like one that is working. `tests/memory.test.ts` covers both.
+
+`getEmbeddingModel()` in `src/lib/ai.ts` returns the model or `null`, and it is the only place that decision is made. It sits beside `getModel()` because both answers come from the same one variable. Read that function, not the provider table, when you want to know what will happen.
 
 ## Request flow
 
@@ -118,6 +122,6 @@ npx supabase start          # starts Postgres, Auth, and the local dashboard
 npx supabase db reset       # applies every migration in supabase/migrations
 ```
 
-`npx supabase start` prints the local API URL and keys. Put them in `.env.local` as described in [config.md](./config.md). Magic links sent locally are captured by the local mail viewer rather than delivered, and the CLI prints its address when it starts.
+`npx supabase start` prints the local API URL and the publishable key. Put them in `.env.local` as described in [config.md](./config.md). Magic links sent locally are captured by the local mail viewer rather than delivered, and the CLI prints its address when it starts.
 
 To change the schema, add a new file under `supabase/migrations/` with a timestamp prefix and run `npx supabase db reset`. Never edit a migration that has already run somewhere real. Then update `src/types/database.ts` to match, which `tests/schema.test.ts` will insist on.

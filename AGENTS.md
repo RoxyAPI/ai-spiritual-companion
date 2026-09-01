@@ -1,10 +1,8 @@
 # Agents Guide
 
-This is an MIT licensed RoxyAPI Template: an AI spiritual companion that remembers the person it is talking to. Next.js, Supabase, and the Vercel AI SDK, with every calculation coming from [RoxyAPI](https://roxyapi.com).
+An MIT licensed template: an AI spiritual companion that remembers the person it is talking to. Next.js 16 App Router with TypeScript, Tailwind 4 and shadcn components, Supabase for identity and storage, pgvector for semantic memory, the Vercel AI SDK for the conversation, `@roxyapi/sdk` for the two calculations the application owns, and Remote MCP for everything the model reaches itself. There is one product idea underneath all of it: **the calculations are stateless and exact, and the memory is stateful and yours.** A natal chart is computed once from immutable birth data and stored forever, live facts are fetched only when a question needs them, and everything personal lives in a Supabase project the owner controls, behind row level security, where it never reaches the calculation service.
 
-The idea it demonstrates is one line long. **The calculations are stateless and exact, the memory is stateful and yours.** A natal chart is computed once from immutable birth data and stored forever. Today's sky is computed fresh each turn. Everything personal, the reading history and the semantic memory, lives in a Supabase project the owner controls, behind row level security, and never reaches the calculation service. The companion is the join of those two things at request time.
-
-That is the part worth protecting when you change anything here. You are most likely a coding agent helping somebody make this their own. More Templates to fork: https://roxyapi.com/starters
+You are most likely a coding agent helping somebody make this their own. Protect that idea when you change anything. More templates to fork: https://roxyapi.com/starters
 
 ## Canonical RoxyAPI references (use these, do not guess)
 
@@ -19,13 +17,98 @@ Prefer these live sources over memory for any RoxyAPI path, field, SDK method, o
 
 ## Setup
 
-- Get an API key at https://roxyapi.com/pricing and a model key from one of the providers in `docs/integrations.md`
-- Copy `.env.example` to `.env.local` and fill it in
-- Start the database: `npx supabase start`, then `npx supabase db reset` to apply the migrations. Needs Docker. The command prints the URL and anon key to put in `.env.local`
-- `npm install`, then `npm run dev`, then open http://localhost:3000
-- `npm run verify` runs the whole gate in the order everything else runs it: format, lint, types, tests, build with no key. Run it before you push. The same order runs on commit and on push.
+1. Get an API key at https://roxyapi.com/pricing and a model key from one of the providers in `docs/integrations.md`.
+2. Start the database. This needs Docker and no account: `npx supabase start`, then `npx supabase db reset` to apply the migrations. The first command prints an API URL, a publishable key, and the address of a local mail viewer that catches the sign in links.
+3. `cp .env.example .env.local` and fill in the five values it documents.
+4. `npm install`, then `npm run dev`, then open http://localhost:3000
+5. `npm run verify` runs the whole gate in the order everything else runs it: format, lint, types, tests, build with no key. Run it before you push. The same order runs on commit and on push.
 
-## The task router
+## Endpoints it actually calls
+
+The calculation layer is split by one question: does exactly one call have to happen? Where the answer is yes, the application makes the call through the typed SDK. Everything else is reached by the model itself over Remote MCP.
+
+| Endpoint | SDK method | Called from | How often |
+|---|---|---|---|
+| `GET /location/search` | `roxy.location.searchCities` | `/api/cities`, behind the onboarding autocomplete | While somebody types their birth city |
+| `POST /astrology/natal-chart` | `roxy.astrology.generateNatalChart` | the onboarding server action | **Once per account, ever** |
+
+The conversation reaches the rest through Remote MCP servers at `https://roxyapi.com/mcp/{domain}`, connected in `src/lib/mcp.ts`. The model resolves a place, reads today sky, or draws a card when a question needs it, and skips all of it when a question does not.
+
+Three things about that module are load bearing.
+
+**The default connects a few domains, not all of them.** Every connected tool is a tool definition in front of the model on every turn, and vendors document selection accuracy falling as that list grows. `ROXYAPI_MCP_PRODUCTS` widens it, and every domain on the platform works without a code change. Sources and numbers: `docs/companion.md`.
+
+**Every call asks for the compact response shape.** `compact: true` returns the same data with each field name sent once for a whole array instead of once per row, which is lossless and roughly 40 to 52 percent fewer tokens on a detailed chart. It is injected by a wrapper and asked for again in the system prompt. Lower inference cost, no bearing on how many requests are counted.
+
+**The natal chart tool is never given to the model.** The application computes that once per account and caches it, and a guarantee a model can opt out of is not a guarantee. It is already in the prompt on every turn.
+
+## How the memory works
+
+One turn, in order:
+
+1. The Supabase server client resolves the session from cookies.
+2. The cached chart is read from the database. No calculation call.
+3. `recall` returns the relevant past, by meaning through pgvector, or by recency when there is no embedding model or the embedding call fails.
+4. The tool set is gathered from the connected Remote MCP servers.
+5. `buildSystemPrompt` folds all of it plus the chosen tone into one prompt. It is a pure function, and it is where to look when the companion says something unexpected.
+6. The reply streams, and the model calls whichever calculations the question actually needed.
+7. `remember` appends the reading, what it was grounded in, and, when embeddings are available, the embedded memory.
+
+**`src/lib/memory/` is the only module that reads or writes `readings` and `memories`. Two verbs, `recall` and `remember`.** If you are adding a third, the flow has grown a step that belongs inside one of them.
+
+Four tables, all with row level security keyed to the signed in user: `profiles`, `charts` (one row per account, enforced by the primary key), `readings` (append only), `memories` (append only, `vector(768)`). Full schema and reasoning: `docs/memory.md`.
+
+## How to extend it
+
+**Give the companion another domain.** Add its slug to `ROXYAPI_MCP_PRODUCTS` and add the tool names you want to `COMPANION_TOOLS` in `src/lib/mcp.ts`, or set `ROXYAPI_MCP_TOOLS=all` to hand over everything the connected domains offer. No code change and no upgrade, including for domains added to the platform after this was written. Watch the total: the tool count guidance in `docs/companion.md` is the thing to stay inside.
+
+**Add an application controlled reading.** When exactly one call must happen at a moment you choose, rather than when a model decides, do it the way onboarding does: call it through `unwrap` in a server action, and pass the rendered text to `remember` with a new `kind`. The memory layer needs no change, because `readings.kind` is a free string precisely so a fork can add its own. Do not add a second API client.
+
+**Change the voice.** `src/lib/prompt.ts` holds four tone presets and the rules that survive all of them. Adding a fifth is three steps and all three are required: the key in the `TonePreset` union in `src/types/index.ts`, the paragraph in `TONE_PRESETS`, and the option in the onboarding step. `tests/prompt.test.ts` fails until all three are done. The grounding rules and the safety boundaries sit outside the presets on purpose.
+
+**Swap the model provider.** One environment variable, `LLM_PROVIDER`. Adding a fourth provider means installing its AI SDK package and adding one branch to `getModel()` in `src/lib/ai.ts`. If it also has an embedding endpoint that can produce 768 dimensions, add a branch to `getEmbeddingModel()`; if it cannot, return `null` and recall falls back to recency by itself.
+
+**Add paid plans.** This is expected and welcome. Memory is the natural premium feature in a companion product, and the seam is already in the right place: add a subscription flag to `profiles`, gate `recall` and `remember` on it, and the free experience degrades to a capable stateless assistant with no change to the conversation code. Everything in this repository is MIT, including whatever you build on top.
+
+**Change the look.** Two blocks in `src/app/globals.css`, light and dark. `tests/design-tokens.test.ts` fails if you finish one and forget the other.
+
+## The rules that are not style preferences
+
+**The calculation service receives birth data only.** A date, a time, coordinates, a timezone. Never a journal entry, never a mood, never a line of the conversation. If a feature you are adding would put something the person wrote into a calculation request, the design is wrong: split it so the calculation gets the birth data and the language model gets the sentence.
+
+**The natal chart is computed once per account, ever.** It comes from immutable birth data, so a second call is pure waste. `charts.user_id` is the primary key, which makes that structural rather than a promise. Do not add a refresh button.
+
+**Row level security is the access control.** Every query runs as the signed in user and every policy is keyed to `auth.uid()`. The application code does not repeat the check, and there is no service role key in this project. Adding one means a bug in any route handler bypasses every policy at once.
+
+**Location first, chart second.** Never ask somebody for coordinates. The city autocomplete resolves latitude, longitude and the IANA timezone, and the IANA name is what gets stored, because it is the form that stays correct across a daylight saving boundary in the year somebody was born.
+
+**The build must work with no keys.** Every call happens when somebody asks a question, never at build time, so a fork can deploy before it has bought anything.
+
+## Conventions
+
+- Server components by default. `'use client'` only for the transcript, the composer, the onboarding steps, the city autocomplete, the theme toggle, and the sign in form.
+- **A page never sets a width, a gutter, or a section padding.** Compose `<Section>`; it owns the full width band, the optional wash, the shared container, and the rhythm. The width is declared once, as `.site-container`, and a test fails if anything redeclares it. The conversation screen is the single documented exception and it owns its height, not its width.
+- **Types live in `src/types/` and nowhere else.** API response types are never among them: import those from `@roxyapi/sdk`, which generates them from the live spec.
+- No `as any`, no hand written interfaces for API responses, no dead code.
+- No apostrophes, no em dashes, and no double hyphens in prose that a reader of this repository will see. Code is exempt.
+- Reuse before you add. Check `src/lib/` and `src/components/` first.
+
+## What the tests guard
+
+`npm test` is six drift guards, not a coverage exercise. Keep them passing and keep them honest.
+
+- `schema` : every table in the migrations has row level security enabled and a policy, the search function is `security invoker` rather than `security definer`, and the TypeScript schema still matches the SQL.
+- `memory` : recall degrades to recency without an embedding model and searches vectors with one, both paths return the same shape, and a failing embedding provider costs the quality of one recall rather than the turn or the reading.
+- `prompt` : every tone preset has a voice, and the grounding rules and the safety boundaries survive under all of them.
+- `guard` : each API error code still maps to a message somebody can act on, and a missing key never reaches the network.
+- `design-tokens` : every palette token exists in light and dark, the social card still uses the palette it cannot read, and only the stylesheet declares the site width.
+- `mcp` : the default domain set stays lean, the tool selection stays inside the published guidance, the compact flag reaches every call, and the natal chart tool is never handed to the model.
+
+`npm run test:drift` is separate and hits the network: it checks that the two endpoints above still exist in the live specification and that every domain the conversation connects to is still mounted. It runs weekly, not on pull requests, because a green build must never depend on a third party being reachable.
+
+If you add a guard, break it once on purpose and watch it fail before you trust it. A test that reads a file and asserts a value can pass vacuously.
+
+## The docs router
 
 The specification lives in `docs/`. Read the file that owns the concern before changing anything, and update it in the same change.
 
@@ -39,53 +122,6 @@ The specification lives in `docs/`. Read the file that owns the concern before c
 | Understand the architecture, the two service boundaries, the scripts, or the tests | `docs/code.md` |
 | Touch metadata, structured data, the sitemap, or the social card | `docs/seo.md` |
 | Change a provider, deploy it, or wire up a hosted database | `docs/integrations.md` |
-
-## The rules that are not style preferences
-
-**The calculation service receives birth data only.** A date, a time, coordinates, a timezone. Never a journal entry, never a mood, never a line of the conversation. If a feature you are adding would put something the person wrote into a calculation request, the design is wrong. Split it: the calculation gets the birth data, the language model gets the sentence.
-
-**The natal chart is computed once per account, ever.** It comes from immutable birth data, so a second call is pure waste. `charts.user_id` is the primary key, which makes that structural rather than a promise. Do not add a refresh button.
-
-**Row level security is the access control.** Every query runs as the signed in user and every policy is keyed to `auth.uid()`. The application code does not repeat the check, and there is no service role key in this project. Adding one means a bug in any route handler bypasses every policy at once.
-
-**Location first, chart second.** Never ask somebody for coordinates. The city autocomplete resolves latitude, longitude, and the IANA timezone, and the IANA name is what gets stored, because it is the form that stays correct across a daylight saving boundary in the year somebody was born.
-
-**The build must work with no keys.** Continuous integration has no secrets, and a fork should be able to deploy before it has bought anything. Every call happens when somebody asks a question, never at build time.
-
-## How a turn works
-
-1. The Supabase server client resolves the session from cookies.
-2. The cached chart is read from the database. No calculation call.
-3. `recall` returns the relevant past, semantically through pgvector or chronologically when no embedding model is configured.
-4. Today's transits are computed live, from the stored birth data.
-5. `buildSystemPrompt` folds all of it plus the chosen tone into one prompt. It is pure, and it is where to look when the companion says something unexpected.
-6. The reply streams.
-7. `remember` appends the reading and, when embeddings are on, the embedded memory.
-
-`src/lib/memory/` is the only module that reads or writes `readings` and `memories`. Two verbs, `recall` and `remember`. If you are adding a third, the flow has grown a step that belongs inside one of them.
-
-## What the tests guard
-
-`npm test` is five drift guards, not a coverage exercise. Keep them passing and keep them honest.
-
-- `schema` : every table in the migrations has row level security enabled and a policy, and the TypeScript schema still matches the SQL.
-- `memory` : recall degrades to recency without an embedding model and searches vectors with one, and both paths return the same shape.
-- `prompt` : every tone preset has a voice, and the grounding rules and the safety boundaries survive under all of them.
-- `guard` : each API error code still maps to a message a person can act on.
-- `design-tokens` : every palette token exists in light and dark, and only the stylesheet declares the site width.
-
-`npm run test:drift` is separate and hits the network: it checks that every endpoint this template calls still exists in the live specification. It runs weekly, not on pull requests, because a green build must never depend on a third party being reachable.
-
-If you add a guard, break it once on purpose and watch it fail before you trust it. A test that reads a file and asserts a value can pass vacuously.
-
-## House style
-
-- No apostrophes, no em dashes, and no double hyphens in any prose a reader of this repository will see. Code is exempt.
-- Server components by default. `'use client'` only for the transcript, the composer, the city autocomplete, the theme toggle, and the sign in form.
-- **A page never sets a width, a gutter, or a section padding.** Compose `<Section>`; it owns the full width band, the optional wash, the shared container, and the rhythm. The site width is declared once, as `.site-container`, and a test fails if anything redeclares it. The conversation screen is the single documented exception and it owns its height, not its width.
-- **Types live in `src/types/` and nowhere else.** API response types are never among them: import those from `@roxyapi/sdk`.
-- No `as any`, no hand written interfaces for API responses, no dead code.
-- Reuse before you add. Check `src/lib/` and `src/components/` first.
 
 ## Upstream sync
 
