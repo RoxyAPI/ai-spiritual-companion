@@ -1,23 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { signOut } from '@/app/auth/actions';
 import { Button } from '@/components/ui/button';
-import { createClient } from '@/lib/supabase/client';
 
-/** Ends the session and returns to the landing page. */
+/** Ends the session and returns to the landing page. The call runs on the server. */
 export function SignOutButton() {
-  const router = useRouter();
-
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={async () => {
-        await createClient().auth.signOut();
-        router.push('/');
-        router.refresh();
-      }}
-    >
+    <Button variant="ghost" size="sm" onClick={() => signOut()}>
       Sign out
     </Button>
   );

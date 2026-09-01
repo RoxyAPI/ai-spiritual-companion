@@ -103,6 +103,8 @@ npm run dev
 
 **5. Create an account.** Open http://localhost:3000, press **Start**, and enter any email address. It does not have to be real, and nothing leaves your machine. Open the local mail viewer at **http://127.0.0.1:54324**, open the message that just arrived, and click **Sign in**. That link creates the account and signs you in.
 
+Working over SSH, a container, or a cloud editor with port forwarding? Forward ports **3000** and **54324** and you are done. Sign in, sign out, and the emailed link all run through the app on the server, so the Supabase API port never needs to be reachable from your browser.
+
 **6. Onboard.** Three steps: why the chart is computed once, your birth date and time and city, and the voice you want. The chart is calculated at the end of it, one time.
 
 **7. Verify the memory.** The next section.

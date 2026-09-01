@@ -2,10 +2,10 @@
 
 import { Loader2, MailCheck } from 'lucide-react';
 import { useState } from 'react';
+import { sendMagicLink } from '@/app/auth/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createClient } from '@/lib/supabase/client';
 
 /**
  * One field and one button. A link in an email means no password for somebody to remember, no reset
@@ -57,13 +57,10 @@ export function SignInForm() {
         setPending(true);
         setError(null);
 
-        const { error: signInError } = await createClient().auth.signInWithOtp({
-          email,
-          options: { emailRedirectTo: `${window.location.origin}/auth/confirm?next=/companion` },
-        });
+        const { error: signInError } = await sendMagicLink(email);
 
         setPending(false);
-        if (signInError) setError(signInError.message);
+        if (signInError) setError(signInError);
         else setSentTo(email);
       }}
     >

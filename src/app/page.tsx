@@ -55,7 +55,7 @@ export default async function HomePage() {
         </h1>
         <p className="max-w-2xl text-lg text-muted-foreground">{config.description}</p>
         <div className="flex flex-wrap gap-3">
-          <Button asChild size="lg">
+          <Button asChild size="lg" className="min-w-44">
             <Link href="/auth/login">Start</Link>
           </Button>
           <Button asChild size="lg" variant="outline">
