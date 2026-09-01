@@ -6,7 +6,7 @@
 
 # AI Spiritual Companion
 
-**An open source, MIT licensed template for an AI spiritual companion that remembers each of its users.** It is an AI astrology companion with long term memory: every account gets a natal chart computed exactly once and cached forever, a chat history that grows with every conversation, and semantic recall over that history through pgvector, all stored in a Supabase project the operator owns. The conversation is grounded in live calculations pulled over Remote MCP from 14+ insight domains on one API key, verified against NASA JPL Horizons. Personal content never leaves the operator database: only birth data is ever sent to be calculated. Built with Next.js, TypeScript, Supabase, and the Vercel AI SDK.
+**An open source, MIT licensed template for an AI spiritual companion that remembers each of its users.** It is an AI astrology companion with long term memory: semantic recall through pgvector finds the moment a feeling was first described, the chat history grows with every conversation, and the natal chart is computed once and kept, all stored in a Supabase project the operator owns. The conversation is grounded in live calculations pulled over Remote MCP from 14+ insight domains on one API key, verified against NASA JPL Horizons. Personal content never leaves the operator database: only birth data is ever sent to be calculated. Built with Next.js, TypeScript, Supabase, and the Vercel AI SDK.
 
 [![Get API Key](https://img.shields.io/badge/Get_API_Key-RoxyAPI-14b8a6?style=for-the-badge&logo=key&logoColor=white)](https://roxyapi.com/pricing)
 [![Try the API live](https://img.shields.io/badge/Try_API_Live-Free_in_browser-22c55e?style=for-the-badge&logo=swagger&logoColor=white)](https://roxyapi.com/api-reference)
