@@ -1,9 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // The development server otherwise appends its own block to AGENTS.md on every run, which turns a
-  // hand written router into a file that rewrites itself and leaves an uncommitted change after
-  // every `npm run dev`. Guidance about the framework belongs in the framework documentation.
+  // This repo owns its agent instructions. Without this, next dev writes a managed block
+  // into AGENTS.md whenever it detects a coding agent, and that block does not follow the
+  // typography this public repo keeps. The pre-commit guard in lefthook.yml is the second net.
   agentRules: false,
 };
 
