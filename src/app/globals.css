@@ -26,6 +26,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-foreground-soft: var(--foreground-soft);
+  --color-success: var(--success);
+  --color-success-ink: var(--success-ink);
+  --color-warning: var(--warning);
+  --color-warning-ink: var(--warning-ink);
+  --color-destructive-ink: var(--destructive-ink);
+  --color-info: var(--info);
+  --color-info-ink: var(--info-ink);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -63,19 +71,74 @@ missing from either. Reasoning and the contrast rule are in docs/design.md.
   --input: #E4DBC6;
   --ring: #254B5A;
 
+  /* One step softer than the foreground and still stronger than the muted ink, for a label, a
+     column head, or a mark that has to stay readable beside its value. Nothing in the product
+     needed a third ink level until a drawn result did, and the stock value for that level is
+     slate, which reads cold on warm paper. */
+  --foreground-soft: #2D3C47;
+
+  /* The status scale. `--destructive` above is one of the four and keeps its name. Each carries an
+     `-ink` partner, which is the text colour for a TINT of that status rather than for the status
+     colour itself, and every pair clears 4.5:1 on a tint of up to a quarter strength. */
+  --success: #3F7A55;
+  --success-ink: #2B5A3C;
+  --warning: #B0702A;
+  --warning-ink: #7C4A10;
+  --destructive-ink: #8C2B29;
+  --info: #3A6B86;
+  --info-ink: #2B5265;
+
   /*
   The bridge to the components that draw a calculation. Every one of them reads `--roxy-*`, so
-  mapping five of those onto the palette above is the whole of theming them, and restyling a
-  component is never the answer. The values are references rather than colours, so the dark block
-  below moves them with everything else and there is no second copy to keep in step. Every token,
-  its light and dark default and what it paints:
+  pointing those at the palette above is the whole of theming them, and restyling a component is
+  never the answer. Every value here is a reference rather than a colour, so the dark block below
+  moves the whole set with everything else and there is no second copy to keep in step. Every
+  token, its light and dark default and what it paints:
   https://github.com/RoxyAPI/ui/blob/main/packages/ui/THEMING.md
+
+  Two are deliberately absent. `--roxy-accent-ink` derives from the accent, mixing toward black in
+  light and passing the accent through in dark, so bridging the accent moves it and the derived
+  light value stays the safer one on a tinted chip. `--roxy-heat` derives from the danger colour
+  the same way. `--roxy-font-mono` is left on its system stack, because a numeric column wants a
+  monospace face and the product loads none.
+
+  The surface pairing is the one worth reading twice: the drawn card is `--roxy-surface`, which
+  seventy modules paint with, and `--roxy-bg` is the field behind an input. Mapping them the other
+  way round puts a white sheet on warm paper.
   */
-  --roxy-bg: var(--card);
+  --roxy-bg: var(--background);
+  --roxy-surface: var(--card);
   --roxy-fg: var(--card-foreground);
+  --roxy-primary: var(--card-foreground);
+  --roxy-secondary: var(--foreground-soft);
   --roxy-muted: var(--muted-foreground);
   --roxy-border: var(--border);
   --roxy-accent: var(--primary);
+  --roxy-ring: var(--ring);
+
+  --roxy-success: var(--success);
+  --roxy-success-fg: var(--success-ink);
+  --roxy-warning: var(--warning);
+  --roxy-warning-fg: var(--warning-ink);
+  --roxy-danger: var(--destructive);
+  --roxy-danger-fg: var(--destructive-ink);
+  --roxy-info: var(--info);
+  --roxy-info-fg: var(--info-ink);
+
+  --roxy-font-sans: var(--font-sans-var), system-ui, sans-serif;
+  --roxy-font-display: var(--font-display-var), Georgia, serif;
+
+  /* The same steps the theme block above builds its radius scale from, and a test asserts the two
+     agree, because a ratio written twice is a ratio that drifts. The library rounds its outer card
+     with the large step, so that one takes the corner this product gives a card. */
+  --roxy-radius-sm: calc(var(--radius) * 0.6);
+  --roxy-radius-md: var(--radius);
+  --roxy-radius-lg: calc(var(--radius) * 1.8);
+
+  /* The product separates surfaces with a border and never with a shadow, so the drawings do too. */
+  --roxy-shadow-sm: none;
+  --roxy-shadow-md: none;
+  --roxy-shadow-lg: none;
 }
 
 .dark {
@@ -97,6 +160,14 @@ missing from either. Reasoning and the contrast rule are in docs/design.md.
   --border: #263A4C;
   --input: #263A4C;
   --ring: #C9A96B;
+  --foreground-soft: #CED0C7;
+  --success: #6FBF8B;
+  --success-ink: #A6DCB8;
+  --warning: #E0A85C;
+  --warning-ink: #F0C68F;
+  --destructive-ink: #F0A39C;
+  --info: #99BAD7;
+  --info-ink: #BFD6E7;
 }
 
 @layer base {

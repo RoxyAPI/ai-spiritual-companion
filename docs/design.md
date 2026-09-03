@@ -14,6 +14,7 @@ One palette. It is declared as CSS custom properties in `src/app/globals.css`, m
 | `foreground` | `#14232E` | `#EFE7D3` |
 | `card` | `#F1EADB` | `#1B2A39` |
 | `card-foreground` | `#14232E` | `#EFE7D3` |
+| `foreground-soft` | `#2D3C47` | `#CED0C7` |
 | `popover` | `#F1EADB` | `#1B2A39` |
 | `popover-foreground` | `#14232E` | `#EFE7D3` |
 | `primary` | `#254B5A` | `#C9A96B` |
@@ -24,20 +25,41 @@ One palette. It is declared as CSS custom properties in `src/app/globals.css`, m
 | `muted-foreground` | `#5C6A76` | `#92A4B2` |
 | `accent` | `#B89D62` | `#99BAD7` |
 | `accent-foreground` | `#14232E` | `#16222E` |
+| `success` | `#3F7A55` | `#6FBF8B` |
+| `success-ink` | `#2B5A3C` | `#A6DCB8` |
+| `warning` | `#B0702A` | `#E0A85C` |
+| `warning-ink` | `#7C4A10` | `#F0C68F` |
 | `destructive` | `#B23A38` | `#E4736B` |
+| `destructive-ink` | `#8C2B29` | `#F0A39C` |
+| `info` | `#3A6B86` | `#99BAD7` |
+| `info-ink` | `#2B5265` | `#BFD6E7` |
 | `border` | `#E4DBC6` | `#263A4C` |
 | `input` | `#E4DBC6` | `#263A4C` |
 | `ring` | `#254B5A` | `#C9A96B` |
 
-Eighteen tokens, in the order they are declared. `popover`, `secondary` and `muted` all take the card surface on purpose: this product has one raised surface, not three, and giving them separate values is how a menu ends up a shade off the card it opens over. The shadcn primitives expect all three names to exist, so they are declared rather than dropped.
+Twenty six tokens, in the order they are declared. `popover`, `secondary` and `muted` all take the card surface on purpose: this product has one raised surface, not three, and giving them separate values is how a menu ends up a shade off the card it opens over. The shadcn primitives expect all three names to exist, so they are declared rather than dropped.
+
+Three of the names are ours rather than shadcn, and each earned its place by being needed on screen. `foreground-soft` is the ink level between the foreground and the muted foreground, for a label or a column head that has to stay readable beside its value. The status family (`success`, `warning`, `info`, and the existing `destructive`) paints a legend, a chip and a graded cell. Each status carries an `-ink` partner, which is the text colour for a TINT of that status and not for the status colour itself; every pair clears 4.5:1 on a tint of up to a quarter strength, measured on the rendered pixels rather than assumed.
 
 Selectors are `:root` for light and `.dark` for dark, where `.dark` is written by the theme provider. `tests/design-tokens.test.ts` asserts every token in the table above exists in both blocks, so a half finished recolour fails the suite instead of shipping a dark mode with a light border.
-
-The `:root` block ends with five `--roxy-*` tokens, which is how the components that draw a calculation are themed. They hold references to the palette rather than colours, so the `.dark` block moves them with everything else and there is no second copy to keep in step. The same test fails if one of them is given a colour of its own or is copied into `.dark`.
 
 Contrast is checked against the **card**, not the page background. The card is the darker of the two surfaces in light mode and the lighter one in dark, so a muted value that passes on the background can still fail inside a card, and a chat interface is almost entirely cards. Every foreground and background pair here is AAA, and every muted and primary pair is AA or better.
 
 The primary swaps role between modes on purpose: deep ink on paper in light, warm gold on night in dark. Do not generate the dark values by inverting the light ones.
+
+## Theming the drawn results
+
+The `:root` block ends with twenty five `--roxy-*` tokens, which is how the components that draw a calculation are themed: every surface, ink, border, status colour, focus ring, typeface, corner and shadow they paint comes from one of them. Each holds a reference to a palette token rather than a colour, so the `.dark` block moves the whole set with everything else and there is no second copy to keep in step. `tests/design-tokens.test.ts` fails if one is given a colour of its own, if one is copied into `.dark`, if a radius stops matching the scale the theme block builds, or if a palette token the bridge points at goes missing.
+
+Four things about that bridge are worth knowing before changing it.
+
+**The surface pairing is the opposite of what the token names suggest.** `--roxy-surface` is the card a drawing paints, which is why it takes `--card`, and `--roxy-bg` is only the field behind an input, which is why it takes `--background`. Mapping them the other way round puts a white sheet on warm paper.
+
+**Three tokens are left alone on purpose.** `--roxy-accent-ink` and `--roxy-heat` derive from the accent and the danger colour, so bridging those two moves them, and the derived light ink is the safer one on a tinted chip. `--roxy-font-mono` keeps its system stack, because a numeric column wants a monospace face and this product loads none.
+
+**Accent text on a tint is a different measurement from accent text on the page.** The library documents it and the components handle it by using the plain foreground on a tinted chip. The check that matters is the rendered one: read the composited fill and the ink off the page and compute the ratio, rather than trusting the token values.
+
+**The component library ships a `moonlit` preset built from this exact palette**, at [moonlit.css](https://github.com/RoxyAPI/ui/blob/main/packages/ui/src/styles/themes/moonlit.css). It is generated from the palette data in that package and it is the reference for how these colours are meant to map. This bridge matches it and then goes further, because a preset can only hold literal colours while a bridge can hold references. Read it before re-deciding any mapping here.
 
 ## Typography
 

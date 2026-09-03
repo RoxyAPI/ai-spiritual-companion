@@ -240,7 +240,7 @@ Nothing is wired per tool. [`@roxyapi/ui-react`](https://www.npmjs.com/package/@
 | [`src/lib/tool-widgets.ts`](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/src/lib/tool-widgets.ts) | Turns one message into the list of components to draw |
 | [`src/components/companion/tool-widget.tsx`](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/src/components/companion/tool-widget.tsx) | Renders that list above the prose in the same bubble |
 
-The drawings follow the theme, because five `--roxy-*` tokens in `src/app/globals.css` point at the palette the rest of the product uses. Change the palette and they change with it. [THEMING.md](https://github.com/RoxyAPI/ui/blob/main/packages/ui/THEMING.md) covers every token, and the [AI chat widgets tutorial](https://roxyapi.com/docs/tutorials/ai-chat-widgets) covers the same pattern for other chat frameworks and model vendors.
+The drawings follow the theme. Every surface, ink, border, status colour, focus ring, typeface and corner they paint is pointed at the palette by the `--roxy-*` block in `src/app/globals.css`, so a drawn result is the same material as the page around it and a recolour moves both. [THEMING.md](https://github.com/RoxyAPI/ui/blob/main/packages/ui/THEMING.md) covers every token, and the [AI chat widgets tutorial](https://roxyapi.com/docs/tutorials/ai-chat-widgets) covers the same pattern for other chat frameworks and model vendors.
 
 ## How is model and API spend protected
 

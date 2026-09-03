@@ -74,7 +74,7 @@ Four tables, all with row level security keyed to the signed in user: `profiles`
 
 **Change the look.** Two blocks in `src/app/globals.css`, light and dark. `tests/design-tokens.test.ts` fails if you finish one and forget the other.
 
-**Theme the drawings.** Five `--roxy-*` tokens at the end of the `:root` block in `src/app/globals.css` point the components at the palette, so they move with a recolour and need no second copy in `.dark`. Never restyle a component to change how a drawing looks: set a token. Every token, its light and dark default and what it paints: https://github.com/RoxyAPI/ui/blob/main/packages/ui/THEMING.md
+**Theme the drawings.** The `--roxy-*` block at the end of `:root` in `src/app/globals.css` points every surface, ink, border, status colour, focus ring, typeface, corner and shadow the components paint at a palette token, so they move with a recolour and need no second copy in `.dark`. Never restyle a component to change how a drawing looks: set a token, and if the product has no token for what you need, add it to the palette first. Reasoning, the surface pairing that is easy to get backwards, and the tokens left to derive: `docs/design.md`. Every token, its light and dark default and what it paints: https://github.com/RoxyAPI/ui/blob/main/packages/ui/THEMING.md
 
 ## The rules that are not style preferences
 
@@ -105,7 +105,7 @@ Four tables, all with row level security keyed to the signed in user: `profiles`
 - `memory` : recall degrades to recency without an embedding model and searches vectors with one, both paths return the same shape, and a failing embedding provider costs the quality of one recall rather than the turn or the reading.
 - `prompt` : every tone preset has a voice, and the grounding rules and the safety boundaries survive under all of them.
 - `guard` : each API error code still maps to a message somebody can act on, and a missing key never reaches the network.
-- `design-tokens` : every palette token exists in light and dark, the social card still uses the palette it cannot read, and only the stylesheet declares the site width.
+- `design-tokens` : every palette token exists in light and dark, every `--roxy-*` token holds a reference to one of them rather than a colour of its own, the drawn corners still match the radius scale, the social card still uses the palette it cannot read, and only the stylesheet declares the site width.
 - `tool-widgets` : a completed tool call resolves to the component that draws it, a server prefixed tool name still resolves, and a failed call, an undrawable tool and an unparsable result each leave the written answer standing rather than throwing inside the render.
 - `mcp` : the default domain set stays lean, the tool selection stays inside the published guidance, the compact flag reaches every call, and the natal chart tool is never handed to the model.
 

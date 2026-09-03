@@ -17,6 +17,7 @@ const TOKENS = [
   'foreground',
   'card',
   'card-foreground',
+  'foreground-soft',
   'popover',
   'popover-foreground',
   'primary',
@@ -27,7 +28,14 @@ const TOKENS = [
   'muted-foreground',
   'accent',
   'accent-foreground',
+  'success',
+  'success-ink',
+  'warning',
+  'warning-ink',
   'destructive',
+  'destructive-ink',
+  'info',
+  'info-ink',
   'border',
   'input',
   'ring',
@@ -73,29 +81,91 @@ describe('the social card uses the light palette it cannot read', () => {
 });
 
 /**
- * The components that draw a calculation read their own `--roxy-*` tokens. Mapping those onto the
- * palette is the whole of theming them, and a colour written here instead of a reference is the
- * failure worth catching: it looks right in one theme and wrong in the other.
+ * The components that draw a calculation read their own `--roxy-*` tokens, and every surface,
+ * ink, status colour, face and corner they paint comes from one of them. Mapping the whole set
+ * onto the palette is what makes a drawn result part of the page rather than a card dropped on
+ * it, and a colour written here instead of a reference is the failure worth catching: it looks
+ * right in one theme and wrong in the other.
+ *
+ * Three tokens are absent on purpose and are asserted absent, because setting them would break a
+ * derivation the library depends on: `--roxy-accent-ink` and `--roxy-ring` follow the accent, and
+ * `--roxy-heat` follows the danger colour.
  */
 describe('the drawn calculations follow the palette', () => {
   const light = block(':root');
 
   const BRIDGE: Record<string, string> = {
-    'roxy-bg': 'card',
+    'roxy-bg': 'background',
+    'roxy-surface': 'card',
     'roxy-fg': 'card-foreground',
+    'roxy-primary': 'card-foreground',
+    'roxy-secondary': 'foreground-soft',
+    'roxy-ring': 'ring',
     'roxy-muted': 'muted-foreground',
     'roxy-border': 'border',
     'roxy-accent': 'primary',
+    'roxy-success': 'success',
+    'roxy-success-fg': 'success-ink',
+    'roxy-warning': 'warning',
+    'roxy-warning-fg': 'warning-ink',
+    'roxy-danger': 'destructive',
+    'roxy-danger-fg': 'destructive-ink',
+    'roxy-info': 'info',
+    'roxy-info-fg': 'info-ink',
+    'roxy-font-sans': 'font-sans-var',
+    'roxy-font-display': 'font-display-var',
   };
 
   for (const [roxy, app] of Object.entries(BRIDGE)) {
-    it(`${roxy} reads the ${app} token rather than a colour of its own`, () => {
-      expect(light).toMatch(new RegExp(`--${roxy}:\\s*var\\(--${app}\\);`));
+    it(`${roxy} reads the ${app} token rather than a value of its own`, () => {
+      expect(light).toMatch(new RegExp(`--${roxy}:[^;]*var\\(--${app}[,)]`));
     });
   }
 
+  for (const derived of ['roxy-accent-ink', 'roxy-heat']) {
+    it(`${derived} is left to derive rather than pinned`, () => {
+      expect(css).not.toMatch(new RegExp(`--${derived}:`));
+    });
+  }
+
+  it('never pins a colour of its own anywhere in the stylesheet', () => {
+    const pinned = [...css.matchAll(/--roxy-[a-z-]+:\s*([^;]+);/g)].filter(([, value]) =>
+      /#[0-9A-Fa-f]{3,8}\b|\brgba?\(|\bhsla?\(|\boklch\(/.test(value),
+    );
+    expect(pinned.map(([line]) => line.trim())).toEqual([]);
+  });
+
   it('is declared once, because the dark block already moves what it points at', () => {
     expect(block('.dark')).not.toContain('--roxy-');
+  });
+
+  it('separates surfaces with a border rather than a shadow, like the rest of the product', () => {
+    for (const step of ['sm', 'md', 'lg']) {
+      expect(light).toMatch(new RegExp(`--roxy-shadow-${step}:\\s*none;`));
+    }
+  });
+
+  /**
+   * The radius scale is stated twice, once for Tailwind and once for the components, because the
+   * theme block is tree shaken and its variables cannot be relied on at runtime. A test between
+   * the two is what makes writing a ratio twice safe.
+   */
+  it('draws its corners from the same radius scale the rest of the product uses', () => {
+    const theme = css.match(/@theme inline \{([\s\S]*?)\n\}/)?.[1] ?? '';
+    // The library rounds a small mark with the small step, a panel with the medium one, and its
+    // outer card with the large one, so those land on the product's small, base and card corners.
+    for (const [roxyStep, appStep] of [
+      ['sm', 'sm'],
+      ['lg', '2xl'],
+    ] as const) {
+      const ratio = theme.match(
+        new RegExp(`--radius-${appStep}:\\s*calc\\(var\\(--radius\\) \\* ([0-9.]+)\\)`),
+      )?.[1];
+      expect(ratio).toBeDefined();
+      expect(light).toContain(`--roxy-radius-${roxyStep}: calc(var(--radius) * ${ratio});`);
+    }
+    expect(light).toContain('--roxy-radius-md: var(--radius);');
+    expect(theme).toContain('--radius-lg: var(--radius);');
   });
 });
 
