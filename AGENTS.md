@@ -42,6 +42,8 @@ Three things about that module are load bearing.
 
 **The natal chart tool is never given to the model.** The application computes that once per account and caches it, and a guarantee a model can opt out of is not a guarantee. It is already in the prompt on every turn.
 
+Every tool result also renders. `src/lib/tool-widgets.ts` reads the `dynamic-tool` parts of an assistant message, asks `componentForTool` from `@roxyapi/ui-react` which component draws that tool name, parses the JSON text block, and `src/components/companion/tool-widget.tsx` mounts it above the prose in the same bubble. Nothing is listed per tool: connect a domain and its results draw themselves, and a tool no component covers keeps the written answer. `/chart` draws the stored chart with the same library, through `src/components/natal-wheel.tsx`. Compact results are decoded inside the components, so leave `compact` on. Full pattern: https://roxyapi.com/docs/tutorials/ai-chat-widgets
+
 ## How the memory works
 
 One turn, in order:
@@ -72,6 +74,8 @@ Four tables, all with row level security keyed to the signed in user: `profiles`
 
 **Change the look.** Two blocks in `src/app/globals.css`, light and dark. `tests/design-tokens.test.ts` fails if you finish one and forget the other.
 
+**Theme the drawings.** Five `--roxy-*` tokens at the end of the `:root` block in `src/app/globals.css` point the components at the palette, so they move with a recolour and need no second copy in `.dark`. Never restyle a component to change how a drawing looks: set a token. Every token, its light and dark default and what it paints: https://github.com/RoxyAPI/ui/blob/main/packages/ui/THEMING.md
+
 ## The rules that are not style preferences
 
 **The calculation service receives birth data only.** A date, a time, coordinates, a timezone. Never a journal entry, never a mood, never a line of the conversation. If a feature you are adding would put something the person wrote into a calculation request, the design is wrong: split it so the calculation gets the birth data and the language model gets the sentence.
@@ -86,7 +90,7 @@ Four tables, all with row level security keyed to the signed in user: `profiles`
 
 ## Conventions
 
-- Server components by default. `'use client'` only for the transcript, the message, the onboarding steps, the city autocomplete, the theme provider, the theme toggle, the sign in form, and the sign out button. That is eight files, and the shadcn primitives under `components/ui/` carry their own directive.
+- Server components by default. `'use client'` only for the transcript, the message, the drawn tool results, the drawn natal chart, the onboarding steps, the city autocomplete, the theme provider, the theme toggle, the sign in form, and the sign out button. That is ten files, and the shadcn primitives under `components/ui/` carry their own directive.
 - **A page never sets a width, a gutter, or a section padding.** Compose `<Section>`; it owns the full width band, the optional wash, the shared container, and the rhythm. The width is declared once, as `.site-container`, and a test fails if anything redeclares it. The conversation screen is the single documented exception and it owns its height, not its width.
 - **Types live in `src/types/` and nowhere else.** API response types are never among them: import those from `@roxyapi/sdk`, which generates them from the live spec.
 - No `as any`, no hand written interfaces for API responses, no dead code.
@@ -95,13 +99,14 @@ Four tables, all with row level security keyed to the signed in user: `profiles`
 
 ## What the tests guard
 
-`npm test` is six drift guards, not a coverage exercise. Keep them passing and keep them honest.
+`npm test` is seven drift guards, not a coverage exercise. Keep them passing and keep them honest.
 
 - `schema` : every table in the migrations has row level security enabled and a policy, the search function is `security invoker` rather than `security definer`, and the TypeScript schema still matches the SQL.
 - `memory` : recall degrades to recency without an embedding model and searches vectors with one, both paths return the same shape, and a failing embedding provider costs the quality of one recall rather than the turn or the reading.
 - `prompt` : every tone preset has a voice, and the grounding rules and the safety boundaries survive under all of them.
 - `guard` : each API error code still maps to a message somebody can act on, and a missing key never reaches the network.
 - `design-tokens` : every palette token exists in light and dark, the social card still uses the palette it cannot read, and only the stylesheet declares the site width.
+- `tool-widgets` : a completed tool call resolves to the component that draws it, a server prefixed tool name still resolves, and a failed call, an undrawable tool and an unparsable result each leave the written answer standing rather than throwing inside the render.
 - `mcp` : the default domain set stays lean, the tool selection stays inside the published guidance, the compact flag reaches every call, and the natal chart tool is never handed to the model.
 
 `npm run test:drift` is separate and hits the network: it checks that the two endpoints above still exist in the live specification and that every domain the conversation connects to is still mounted. It runs weekly, not on pull requests, because a green build must never depend on a third party being reachable.

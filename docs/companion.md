@@ -67,7 +67,11 @@ It reads the session, loads the cached chart, recalls, gathers the tools, builds
 
 The client is `src/components/companion/chat.tsx`, a client component using the AI SDK chat hook against `/api/chat`. It renders message parts, not message strings, because a message is an array of parts in this version of the SDK and reaching for `.content` is the mistake to avoid.
 
-**Loading state is a spinner.** Never a coloured shimmer, per [design.md](./design.md).
+**Every tool result is drawn as well as described.** `src/lib/tool-widgets.ts` walks the `dynamic-tool` parts of a message, and for each one that completed it asks `componentForTool` from `@roxyapi/ui-react` which component draws that tool name, parses the JSON text block out of the result, and returns a list. `src/components/companion/tool-widget.tsx` mounts that list above the prose, inside the same bubble. Nothing is listed per tool, so connecting a domain in `src/lib/mcp.ts` is all it takes for its results to draw, and a tool no component covers keeps the written answer instead of breaking it. One line of the system prompt tells the companion the drawing is there, so it interprets rather than reprints.
+
+Two details are load bearing. A streaming message is a new object on every chunk, so a widget is memoised by tool call id and the same `data` object is handed back each time; parsing again would redraw a finished chart under the arriving prose. And the components read their own `--roxy-*` custom properties, which the `:root` block of `globals.css` points at the palette, so a recolour moves them and restyling a component is never the answer.
+
+**Loading state is a spinner.** Never a coloured shimmer, per [design.md](./design.md). It shows until the companion has something on screen, which a drawing satisfies as much as the first token does.
 
 ## Live calculations, and who is allowed to make them
 

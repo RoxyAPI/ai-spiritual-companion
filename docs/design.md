@@ -33,6 +33,8 @@ Eighteen tokens, in the order they are declared. `popover`, `secondary` and `mut
 
 Selectors are `:root` for light and `.dark` for dark, where `.dark` is written by the theme provider. `tests/design-tokens.test.ts` asserts every token in the table above exists in both blocks, so a half finished recolour fails the suite instead of shipping a dark mode with a light border.
 
+The `:root` block ends with five `--roxy-*` tokens, which is how the components that draw a calculation are themed. They hold references to the palette rather than colours, so the `.dark` block moves them with everything else and there is no second copy to keep in step. The same test fails if one of them is given a colour of its own or is copied into `.dark`.
+
 Contrast is checked against the **card**, not the page background. The card is the darker of the two surfaces in light mode and the lighter one in dark, so a muted value that passes on the background can still fail inside a card, and a chat interface is almost entirely cards. Every foreground and background pair here is AAA, and every muted and primary pair is AA or better.
 
 The primary swaps role between modes on purpose: deep ink on paper in light, warm gold on night in dark. Do not generate the dark values by inverting the light ones.

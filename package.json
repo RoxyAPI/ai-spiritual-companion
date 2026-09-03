@@ -25,6 +25,7 @@
     "@ai-sdk/openai": "^4.0.53",
     "@ai-sdk/react": "^4.0.90",
     "@roxyapi/sdk": "^1.2.73",
+    "@roxyapi/ui-react": "^0.35.0",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
     "ai": "^7.0.87",

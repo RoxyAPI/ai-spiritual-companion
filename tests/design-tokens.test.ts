@@ -72,6 +72,33 @@ describe('the social card uses the light palette it cannot read', () => {
   }
 });
 
+/**
+ * The components that draw a calculation read their own `--roxy-*` tokens. Mapping those onto the
+ * palette is the whole of theming them, and a colour written here instead of a reference is the
+ * failure worth catching: it looks right in one theme and wrong in the other.
+ */
+describe('the drawn calculations follow the palette', () => {
+  const light = block(':root');
+
+  const BRIDGE: Record<string, string> = {
+    'roxy-bg': 'card',
+    'roxy-fg': 'card-foreground',
+    'roxy-muted': 'muted-foreground',
+    'roxy-border': 'border',
+    'roxy-accent': 'primary',
+  };
+
+  for (const [roxy, app] of Object.entries(BRIDGE)) {
+    it(`${roxy} reads the ${app} token rather than a colour of its own`, () => {
+      expect(light).toMatch(new RegExp(`--${roxy}:\\s*var\\(--${app}\\);`));
+    });
+  }
+
+  it('is declared once, because the dark block already moves what it points at', () => {
+    expect(block('.dark')).not.toContain('--roxy-');
+  });
+});
+
 describe('the measure is declared once', () => {
   it('globals.css declares .site-container', () => {
     expect(css).toContain('.site-container {');

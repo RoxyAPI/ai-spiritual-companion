@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { NatalWheel } from '@/components/natal-wheel';
 import { Section } from '@/components/section';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { requireOnboarded } from '@/lib/auth';
@@ -12,8 +13,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * The stored chart, read from the database. There is no calculation call on this page, and saying
- * so on the page is the demonstration. Without that line it is only a table.
+ * The stored chart, read from the database and drawn. There is no calculation call on this page,
+ * and saying so on the page is the demonstration. Without that line it is only a chart.
+ *
+ * @remarks The tables under the wheel are not a duplicate of it. The drawn planet list gives the
+ * sign and the degree, so the house and the motion would be lost with them.
  */
 export default async function ChartPage() {
   const user = await requireOnboarded();
@@ -40,6 +44,8 @@ export default async function ChartPage() {
           because the moment it describes cannot change.
         </p>
       </div>
+
+      <NatalWheel data={natal} />
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[

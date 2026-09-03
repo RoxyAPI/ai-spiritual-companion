@@ -226,4 +226,9 @@ describe('answering like a practitioner rather than an assistant', () => {
   it('never names its tools or shows a raw data structure', () => {
     expect(prompt).toContain('Never name your tools and never show a raw data structure');
   });
+
+  it('interprets the drawing beside the reply rather than reprinting it', () => {
+    expect(prompt).toMatch(/app draws every chart, spread and table you receive/);
+    expect(prompt).toMatch(/Never reprint the positions the person can already see/);
+  });
 });

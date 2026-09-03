@@ -62,6 +62,20 @@ missing from either. Reasoning and the contrast rule are in docs/design.md.
   --border: #E4DBC6;
   --input: #E4DBC6;
   --ring: #254B5A;
+
+  /*
+  The bridge to the components that draw a calculation. Every one of them reads `--roxy-*`, so
+  mapping five of those onto the palette above is the whole of theming them, and restyling a
+  component is never the answer. The values are references rather than colours, so the dark block
+  below moves them with everything else and there is no second copy to keep in step. Every token,
+  its light and dark default and what it paints:
+  https://github.com/RoxyAPI/ui/blob/main/packages/ui/THEMING.md
+  */
+  --roxy-bg: var(--card);
+  --roxy-fg: var(--card-foreground);
+  --roxy-muted: var(--muted-foreground);
+  --roxy-border: var(--border);
+  --roxy-accent: var(--primary);
 }
 
 .dark {

@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Message } from '@/components/companion/message';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { toolWidgetsFor } from '@/lib/tool-widgets';
 
 /**
  * The transcript and the composer.
@@ -24,10 +25,16 @@ export function Chat({ openers, greeting }: { openers: string[]; greeting: strin
   const endRef = useRef<HTMLDivElement>(null);
 
   const busy = status === 'submitted' || status === 'streaming';
-  // The spinner is only for the wait before the first token. Once text is arriving, the text is the
-  // indicator, and leaving a spinner up beside it keeps spinning after the answer is complete while
-  // the turn is being stored.
-  const waiting = status === 'submitted';
+  // The spinner is only for the wait before the companion shows anything. A drawing from a tool
+  // call arrives before the prose it is written about, so it counts as showing something and the
+  // spinner gives way to it. Leaving a spinner up beside arriving output keeps it spinning after
+  // the answer is complete while the turn is being stored.
+  const last = messages[messages.length - 1];
+  const showing =
+    last?.role === 'assistant' &&
+    (last.parts.some((part) => part.type === 'text' && part.text.length > 0) ||
+      toolWidgetsFor(last).length > 0);
+  const waiting = busy && !showing;
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });

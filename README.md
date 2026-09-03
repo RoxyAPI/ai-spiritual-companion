@@ -28,6 +28,7 @@ Everything in this list is in the repository and runs locally on your machine.
 - **Row level security on every table.** Four tables, every policy keyed to the signed in user, verified by a test suite that reads the migrations and fails if a future table ships open.
 - **Multi provider model switch.** Google, Anthropic, or OpenAI through one environment variable. Two of the three cover embeddings with the same key.
 - **Remote MCP with tool auto discovery.** Live calculations reach the model as MCP tools over Streamable HTTP. Tools inside a connected domain are discovered automatically, and a domain added to the platform later needs one slug in an environment variable, never a code change.
+- **Every result drawn, not described.** A card draw arrives as the card, a transit reading as the wheel, the moon as the moon. The component that draws a result is looked up from the tool name the model used, so a domain you enable renders itself and there is nothing to wire per tool.
 - **Compact tool responses.** Every calculation is requested in a lossless columnar shape that sends each field name once for a whole array instead of once per row. Measured on a real transits response while building this: 56,662 bytes down to 33,338, a 41 percent reduction, inside the published 40 to 52 percent range. Lower inference cost per turn.
 - **A visible memory.** A panel beside the conversation lists what has been stored, with dates, and states whether recall is currently running by meaning or by recency.
 - **A privacy split you can audit.** Birth date, birth time and coordinates are the only things ever sent to be calculated. Journal entries, moods and every word of every conversation stay in the operator database.
@@ -36,7 +37,7 @@ Everything in this list is in the repository and runs locally on your machine.
 
 ## Screenshots
 
-In the order somebody actually meets them: the three onboarding steps, the conversation, the chart it reads from, and the landing page last. Both themes ship.
+In the order somebody actually meets them: the three onboarding steps, the conversation, a calculation drawn beside the reply written about it, the chart it reads from, and the landing page last. Both themes ship.
 
 | Light | Dark |
 |---|---|
@@ -45,6 +46,7 @@ In the order somebody actually meets them: the three onboarding steps, the conve
 | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-2-details-light.jpg" alt="Onboarding, step two, the birth details filled in"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-2-details-dark.jpg" alt="Onboarding, step two, the birth details, in dark mode"> |
 | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-3-voice-light.jpg" alt="Onboarding, step three, choosing a voice, each with a sample"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/onboarding-3-voice-dark.jpg" alt="Onboarding, step three, choosing a voice, in dark mode"> |
 | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-light.jpg" alt="The companion conversation beside a panel listing what it remembers"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-dark.jpg" alt="The companion conversation and its memory panel, in dark mode"> |
+| <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-widget-light.jpg" alt="The moon phase drawn inside the reply, above the reading the companion wrote about it"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/companion-widget-dark.jpg" alt="The moon phase drawn inside the reply, in dark mode"> |
 | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/chart-light.jpg" alt="The natal chart, read from the database"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/chart-dark.jpg" alt="The natal chart, read from the database, in dark mode"> |
 | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/home-light.jpg" alt="The landing page"> | <img src="https://raw.githubusercontent.com/RoxyAPI/ai-spiritual-companion/main/public/screenshots/home-dark.jpg" alt="The landing page, in dark mode"> |
 
@@ -227,6 +229,19 @@ Everything else is reached by the model over Remote MCP at `https://roxyapi.com/
 
 The default connects a few domains rather than all 14+, because every connected tool is a definition placed in front of the model on every turn and vendors document selection accuracy falling as that list grows. That is standard agent engineering and not a limit of the platform: register the domains your agent needs. Widening it is one comma, and the reasoning with sources is in [docs/companion.md](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/docs/companion.md).
 
+## Can the companion show a chart instead of describing it?
+
+It shows both. Every completed tool call is handed to the component that draws that kind of result, and the drawing lands above the prose in the same reply: the card for a tarot draw, the wheel for a transit reading, the table for a set of positions. The stored natal chart is drawn on `/chart` by the same library.
+
+Nothing is wired per tool. [`@roxyapi/ui-react`](https://www.npmjs.com/package/@roxyapi/ui-react) carries a lookup from the tool name the model used to the component that renders its result, so every domain you enable renders itself, and a tool no component covers simply keeps the written answer.
+
+| File | What it does |
+|---|---|
+| [`src/lib/tool-widgets.ts`](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/src/lib/tool-widgets.ts) | Turns one message into the list of components to draw |
+| [`src/components/companion/tool-widget.tsx`](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/src/components/companion/tool-widget.tsx) | Renders that list above the prose in the same bubble |
+
+The drawings follow the theme, because five `--roxy-*` tokens in `src/app/globals.css` point at the palette the rest of the product uses. Change the palette and they change with it. [THEMING.md](https://github.com/RoxyAPI/ui/blob/main/packages/ui/THEMING.md) covers every token, and the [AI chat widgets tutorial](https://roxyapi.com/docs/tutorials/ai-chat-widgets) covers the same pattern for other chat frameworks and model vendors.
+
 ## How is model and API spend protected
 
 Every chat turn is rate limited per user: a per minute cap and a per day cap, both tunable through `CHAT_TURNS_PER_MINUTE` and `CHAT_TURNS_PER_DAY`, both checked before any model or calculation call is made. A person over the limit receives a polite 429 and costs nothing. Setting either variable to 0 pauses the chat entirely.
@@ -250,7 +265,8 @@ Yes. Vector indexes find nearest neighbours before the per user filter applies, 
 | Conversation | Vercel AI SDK, streaming, three providers | AI SDK 7 |
 | Live calculations | Remote MCP over Streamable HTTP | `@ai-sdk/mcp` 2 |
 | Owned calculations | `@roxyapi/sdk`, typed, server side only | 1.x |
-| Quality gate | Biome, ESLint, Vitest, lefthook | 6 test suites |
+| Drawn results | `@roxyapi/ui-react`, one component per tool result | 0.35 |
+| Quality gate | Biome, ESLint, Vitest, lefthook | 7 test suites |
 
 ## Endpoints and tools
 

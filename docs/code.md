@@ -11,9 +11,10 @@ src/
 │   ├── api/cities/         the city search proxy
 │   └── globals.css         the palette, the container, the grain. See design.md
 ├── components/
-│   ├── companion/          the transcript with its composer, and one message
+│   ├── companion/          the transcript with its composer, one message, and the drawn results
 │   ├── onboarding/         the form and the city autocomplete
 │   ├── ui/                 shadcn primitives, unmodified
+│   ├── natal-wheel.tsx     the client boundary the chart page draws through
 │   └── section.tsx         the layout primitive
 ├── config/companion.config.ts   the one file a fork edits. See config.md
 ├── lib/
@@ -27,12 +28,13 @@ src/
 │   ├── roxy/               the calculation client and its error guard
 │   ├── seo.ts              the one structured data block. See seo.md
 │   ├── supabase/           the server client and the session refresh client
+│   ├── tool-widgets.ts     a message to the components that draw its tool results
 │   └── utils.ts            cn, and the redirect path sanitizer the confirm route trusts
 ├── types/
 │   ├── database.ts         the schema as TypeScript. Guarded by tests/schema.test.ts
 │   └── index.ts            every other type in the project
 supabase/migrations/        the schema itself
-tests/                      eight suites plus one that runs weekly
+tests/                      nine suites plus one that runs weekly
 ```
 
 ## Types live in one place
@@ -93,7 +95,7 @@ Every query runs as the signed in user, so row level security is doing the acces
 | `npm run check:ci` | Biome, failing instead of fixing |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | The six local suites |
+| `npm test` | The seven local suites |
 | `npm run test:drift` | The specification drift suite. Hits the network, runs weekly, never in a pull request |
 | `npm run verify` | The whole gate in the order it runs everywhere else |
 | `npm run db:reset` | Recreates the local database and reapplies every migration |
@@ -103,7 +105,7 @@ The order in `verify` is fixed and it is cheapest first: format, lint, types, te
 
 ## What the tests guard
 
-`npm test` is six drift guards, not a coverage exercise.
+`npm test` is seven drift guards, not a coverage exercise.
 
 | Suite | Asserts |
 |---|---|
@@ -112,7 +114,8 @@ The order in `verify` is fixed and it is cheapest first: format, lint, types, te
 | `mcp` | The default domain set stays lean and leads with Western astrology, the tool selection stays inside the range vendors publish as reliable, the compact flag reaches every call, and the natal chart tool is never handed to the model. |
 | `prompt` | Every tone preset in the type union has a paragraph, the grounding rules and both boundary blocks survive under all of them, and the recalled memories and chart facts reach the prompt. |
 | `guard` | Each error code still maps to a message, and a missing key never reaches the network. |
-| `design-tokens` | Every palette token exists in light and in dark, and nothing except `globals.css` declares the site width. |
+| `design-tokens` | Every palette token exists in light and in dark, the five `--roxy-*` tokens point at palette tokens rather than at colours of their own and are declared once, and nothing except `globals.css` declares the site width. |
+| `tool-widgets` | A completed tool call resolves to the component that draws it, a server prefixed tool name still resolves, the same call yields the same `data` object while a message streams, and a failed call, an undrawable tool and an unparsable result are each skipped rather than thrown. |
 
 `npm run test:drift` is separate and touches the network: it asserts the two endpoints above still exist in the live OpenAPI specification, and that every domain the conversation connects to is still mounted. It runs on a schedule rather than on pull requests, because a green build must never depend on a third party being reachable.
 
@@ -120,7 +123,7 @@ Each of these was validated by planting a deliberate error and watching it fail.
 
 ## House style
 
-- Server components by default. Eight files of ours carry `'use client'`, and that is the whole list: the transcript with its composer (`companion/chat.tsx`), one message (`companion/message.tsx`), the onboarding form and the city autocomplete, the sign in form, the sign out button, the theme provider, and the theme toggle. The shadcn primitives under `components/ui/` ship their own directive and are not counted, because they are unmodified.
+- Server components by default. Ten files of ours carry `'use client'`, and that is the whole list: the transcript with its composer (`companion/chat.tsx`), one message (`companion/message.tsx`), the drawn tool results (`companion/tool-widget.tsx`), the drawn natal chart (`natal-wheel.tsx`), the onboarding form and the city autocomplete, the sign in form, the sign out button, the theme provider, and the theme toggle. The shadcn primitives under `components/ui/` ship their own directive and are not counted, because they are unmodified.
 - No `as any`, no hand written interfaces for API responses, no dead code.
 - Comments are for the non obvious why. The default is no comment.
 - Reuse before you add. Check `src/lib/` and `src/components/` before writing a helper that probably already exists.

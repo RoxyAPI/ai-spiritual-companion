@@ -66,11 +66,15 @@ The transcript and its composer, with a panel beside them listing what has been 
 
 An empty transcript greets the person by name, says the chart is loaded, and offers three openers rather than showing a blank box. The greeting changes once there is a history, because a returning visitor should not be welcomed like a new one.
 
+Every calculation the companion reaches for is drawn as well as described, above the prose in the same bubble. How that works is in [companion.md](./companion.md).
+
 ### `/chart`
 
-The stored chart, read from the database and rendered as a table: luminaries and ascendant first, then every placement with its sign, degree, house, and whether it is retrograde, then the major aspects.
+The stored chart, read from the database and drawn as a wheel by `RoxyNatalChart`, through the client boundary in `src/components/natal-wheel.tsx` because the page itself is a server component. The stored response is passed as `data` untouched.
 
-The page states plainly that this was computed once, on the date shown, and has not been recomputed since. That line is the demonstration. Without it the page is just a table.
+Under the wheel the page keeps its own tables: luminaries and ascendant first, then every placement with its sign, degree, house and whether it is retrograde, then the major aspects. The placements table stays because the drawn planet list gives the sign and the degree and not the house or the motion, so removing it would lose two columns.
+
+The page states plainly that this was computed once, on the date shown, and has not been recomputed since. That line is the demonstration. Without it the page is just a chart.
 
 ## Metadata and social
 
