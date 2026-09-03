@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowLeft, Check, Loader2 } from 'lucide-react';
-import { useActionState, useState } from 'react';
+import { startTransition, useActionState, useState } from 'react';
 import { completeOnboarding, type OnboardingState } from '@/app/onboarding/actions';
 import { CitySearch } from '@/components/onboarding/city-search';
 import { Button } from '@/components/ui/button';
@@ -79,7 +79,9 @@ export function OnboardingForm({ defaultTone }: { defaultTone: TonePreset }) {
     data.set('latitude', String(city.latitude));
     data.set('longitude', String(city.longitude));
     data.set('timezone', city.timezone);
-    submit(data);
+    // Dispatched from a click rather than from a form action, so opening the transition is ours to
+    // do. It is what keeps `pending` reliable, and the waiting screen below is all `pending`.
+    startTransition(() => submit(data));
   }
 
   // The chart is being computed. Saying what is happening is the whole difference between a wait
