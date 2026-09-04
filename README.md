@@ -6,7 +6,7 @@
 
 # AI Spiritual Companion
 
-**An open source, MIT licensed template for an AI spiritual companion that remembers each of its users.** It is an AI astrology companion with long term memory: semantic recall through pgvector finds the moment a feeling was first described, the chat history grows with every conversation, and the natal chart is computed once and kept, all stored in a Supabase project the operator owns. The conversation is grounded in live calculations pulled over Remote MCP from 14+ insight domains on one API key, verified against NASA JPL Horizons. Personal content never leaves the operator database: only birth data is ever sent to be calculated. Built with Next.js, TypeScript, Supabase, and the Vercel AI SDK.
+**An open source, MIT licensed template for an AI spiritual companion that remembers each of its users.** It is an AI astrology companion with long term memory: semantic recall through pgvector finds the moment a feeling was first described, the chat history grows with every conversation, and the natal chart is computed once and kept, all stored in a Supabase project the operator owns. The conversation is grounded in live calculations pulled over Remote MCP from 18+ insight domains on one API key, verified against NASA JPL Horizons. Personal content never leaves the operator database: only birth data is ever sent to be calculated. Built with Next.js, TypeScript, Supabase, and the Vercel AI SDK.
 
 [![Get API Key](https://img.shields.io/badge/Get_API_Key-RoxyAPI-14b8a6?style=for-the-badge&logo=key&logoColor=white)](https://roxyapi.com/pricing)
 [![Try the API live](https://img.shields.io/badge/Try_API_Live-Free_in_browser-22c55e?style=for-the-badge&logo=swagger&logoColor=white)](https://roxyapi.com/api-reference)
@@ -308,7 +308,7 @@ The build itself needs no keys at all, and continuous integration proves that on
 
 ## Built with RoxyAPI
 
-Every calculation here comes from [RoxyAPI](https://roxyapi.com), the insight API covering Western astrology, Vedic astrology, forecasting, human design, Chinese astrology, feng shui, numerology, tarot, biorhythm, I Ching, crystals, dreams, and angel numbers. One key, 14+ domains, typed SDKs in 5+ languages, Remote MCP for agents, and drop in UI components.
+Every calculation here comes from [RoxyAPI](https://roxyapi.com), the insight API covering Western astrology, Vedic astrology, forecasting, human design, Chinese astrology, feng shui, Mesoamerican astrology, Vastu, numerology, Kabbalah, tarot, biorhythm, Ayurveda, I Ching, crystals, dreams, and angel numbers. One key, 18+ domains, typed SDKs in 5+ languages, Remote MCP for agents, and drop in UI components.
 
 - [Pricing and keys](https://roxyapi.com/pricing)
 - [Documentation](https://roxyapi.com/docs)
