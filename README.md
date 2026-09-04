@@ -227,7 +227,7 @@ Where the answer is yes, the application makes the call itself through the typed
 
 Everything else is reached by the model over Remote MCP at `https://roxyapi.com/mcp/{domain}`, using Streamable HTTP with no local process to run. Tools inside a connected domain are discovered automatically, so new endpoints appear without a code change, and a whole new domain needs only its slug added to `ROXYAPI_MCP_PRODUCTS`.
 
-The default connects a few domains rather than all 14+, because every connected tool is a definition placed in front of the model on every turn and vendors document selection accuracy falling as that list grows. That is standard agent engineering and not a limit of the platform: register the domains your agent needs. Widening it is one comma, and the reasoning with sources is in [docs/companion.md](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/docs/companion.md).
+The default connects a few domains rather than all 18+, because every connected tool is a definition placed in front of the model on every turn and vendors document selection accuracy falling as that list grows. That is standard agent engineering and not a limit of the platform: register the domains your agent needs. Widening it is one comma, and the reasoning with sources is in [docs/companion.md](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/docs/companion.md).
 
 ## Can the companion show a chart instead of describing it?
 
