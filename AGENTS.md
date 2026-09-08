@@ -2,7 +2,7 @@
 
 An MIT licensed template: an AI spiritual companion that remembers the person it is talking to. Next.js 16 App Router with TypeScript, Tailwind 4 and shadcn components, Supabase for identity and storage, pgvector for semantic memory, the Vercel AI SDK for the conversation, `@roxyapi/sdk` for the two calculations the application owns, and Remote MCP for everything the model reaches itself. There is one product idea underneath all of it: **the calculations are stateless and exact, and the memory is stateful and yours.** A natal chart is computed once from immutable birth data and stored forever, live facts are fetched only when a question needs them, and everything personal lives in a Supabase project the owner controls, behind row level security, where it never reaches the calculation service.
 
-You are most likely a coding agent helping somebody make this their own. Protect that idea when you change anything. More templates to fork: https://roxyapi.com/starters
+You are most likely a coding agent helping somebody make this their own. Protect that idea when you change anything. More templates to fork: https://roxyapi.com/templates
 
 ## Canonical RoxyAPI references (use these, do not guess)
 
