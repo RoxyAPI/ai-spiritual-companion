@@ -3,7 +3,7 @@ import { hasApiKey } from './client';
 
 /** Shown when no key is configured. The setup notice renders this rather than a stack trace. */
 export const NO_KEY =
-  'ROXYAPI_KEY is not set. Add it to .env.local and restart the dev server. Get a key at roxyapi.com/pricing.';
+  'ROXY_API_KEY is not set. Add it to .env.local and restart the dev server. Get a key at roxyapi.com/pricing.';
 
 /**
  * The envelope every SDK method resolves to. `data` is the typed response on success and `error` is

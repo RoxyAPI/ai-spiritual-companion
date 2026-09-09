@@ -6,7 +6,7 @@ Three services. One computes, one remembers, one talks. Nothing else is required
 
 Every chart, transit, and city lookup comes from https://roxyapi.com. One key covers every domain, so there is no base URL to configure and no schema to keep in sync.
 
-- Key: `ROXYAPI_KEY`, server side only. Get one at https://roxyapi.com/pricing
+- Key: `ROXY_API_KEY`, server side only. Get one at https://roxyapi.com/pricing
 - Client: `@roxyapi/sdk`, called through `src/lib/roxy/`. See [code.md](./code.md) for the endpoints and where each is called.
 - Positions are verified against NASA JPL Horizons. The verification tables are at https://roxyapi.com/methodology
 - Free live playground: https://roxyapi.com/api-reference
@@ -65,7 +65,7 @@ Adding a provider means installing its AI SDK package, adding a branch to `getMo
 The deploy button in the README clones the repository and prompts for the environment variables. After the first deploy:
 
 1. Point a Supabase project at it, hosted rather than local, per the steps above
-2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `ROXYAPI_KEY`, and your model key
+2. Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `ROXY_API_KEY`, and your model key
 3. Set `siteUrl` in `src/config/companion.config.ts` to the deployed domain and push, so canonical URLs and the social card resolve
 4. Add the deployed domain to the Supabase redirect allow list
 

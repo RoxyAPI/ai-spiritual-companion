@@ -14,7 +14,7 @@
 [![Methodology](https://img.shields.io/badge/Methodology-NASA_JPL_verified-f59e0b?style=for-the-badge&logo=nasa&logoColor=white)](https://roxyapi.com/methodology)
 [![More Templates](https://img.shields.io/badge/More_Templates-RoxyAPI-ec4899?style=for-the-badge&logo=github&logoColor=white)](https://roxyapi.com/templates)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](https://github.com/RoxyAPI/ai-spiritual-companion/blob/main/LICENSE)
-[![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/RoxyAPI/ai-spiritual-companion&env=ROXYAPI_KEY,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,GOOGLE_GENERATIVE_AI_API_KEY&envDescription=One%20key%20for%20the%20calculations%2C%20your%20Supabase%20project%2C%20and%20one%20model%20key&envLink=https://roxyapi.com/pricing)
+[![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel)](https://vercel.com/new/clone?repository-url=https://github.com/RoxyAPI/ai-spiritual-companion&env=ROXY_API_KEY,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,GOOGLE_GENERATIVE_AI_API_KEY&envDescription=One%20key%20for%20the%20calculations%2C%20your%20Supabase%20project%2C%20and%20one%20model%20key&envLink=https://roxyapi.com/pricing)
 
 ## Features
 
@@ -102,7 +102,7 @@ cp .env.example .env.local
 
 | Variable | Where it comes from |
 |---|---|
-| `ROXYAPI_KEY` | https://roxyapi.com/pricing |
+| `ROXY_API_KEY` | https://roxyapi.com/pricing |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | https://aistudio.google.com/apikey, free tier available |
 | `NEXT_PUBLIC_SUPABASE_URL` | step 2 |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | step 2 |
@@ -157,7 +157,7 @@ Two honest notes. Free embedding tiers rate limit hard, so sending several messa
 
 **The link lands on "That link did not work".** Each link works once and expires, so one you have already opened ends here. Ask for a fresh one. If every link ends here, open the app on http://localhost:3000 rather than http://127.0.0.1:3000, because the sign in link is issued for the first of those.
 
-**Onboarding ends with an error instead of the companion.** The last step makes the one real calculation call, so this is almost always the key. The message on screen names the cause. Add `ROXYAPI_KEY` to `.env.local` and restart `npm run dev`, because environment variables are read once at startup.
+**Onboarding ends with an error instead of the companion.** The last step makes the one real calculation call, so this is almost always the key. The message on screen names the cause. Add `ROXY_API_KEY` to `.env.local` and restart `npm run dev`, because environment variables are read once at startup.
 
 **The companion answers but never seems to remember.** Open `readings` in Supabase Studio. Rows there and nothing in `memories` means the embedding call is failing, and the server log says so in one line. Free embedding tiers rate limit hard, and recall falls back to recency rather than failing, so the answer still arrives.
 

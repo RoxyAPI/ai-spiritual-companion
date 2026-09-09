@@ -8,7 +8,7 @@ Copy `.env.example` to `.env.local`. Nothing here is ever prefixed `NEXT_PUBLIC_
 
 | Variable | Required | What it is |
 |---|---|---|
-| `ROXYAPI_KEY` | yes | Your RoxyAPI key. Server side only. It is read in one module and that module cannot be imported from the browser. Get one at https://roxyapi.com/pricing |
+| `ROXY_API_KEY` | yes | Your RoxyAPI key. Server side only. It is read in one module and that module cannot be imported from the browser. Get one at https://roxyapi.com/pricing |
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Your Supabase project URL. Public by design. |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | Your Supabase publishable key. Public by design, and safe only because row level security is on every table. See [memory.md](./memory.md). |
 | `LLM_PROVIDER` | no | `google` (default), `anthropic`, or `openai`. See [companion.md](./companion.md). |
@@ -18,7 +18,7 @@ Copy `.env.example` to `.env.local`. Nothing here is ever prefixed `NEXT_PUBLIC_
 
 Two keys is the intended steady state: one for calculations, one for the model. The Supabase values come from your project and are not secrets.
 
-**The build must succeed with none of them set.** `env -u ROXYAPI_KEY npm run build` is part of the gate, and continuous integration carries no secrets at all. Every call happens when somebody asks a question, never at build time. If a change makes the build need a key, the change has a bug.
+**The build must succeed with none of them set.** `env -u ROXY_API_KEY npm run build` is part of the gate, and continuous integration carries no secrets at all. Every call happens when somebody asks a question, never at build time. If a change makes the build need a key, the change has a bug.
 
 ## `companion.config.ts`
 

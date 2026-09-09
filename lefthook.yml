@@ -57,5 +57,5 @@ pre-push:
     # Builds with no key on purpose. Continuous integration has no secrets, and a fork must be able
     # to deploy before it has bought anything. If this needs a key, the product has a bug.
     build:
-      run: env -u ROXYAPI_KEY npm run build
+      run: env -u ROXY_API_KEY npm run build
       priority: 5

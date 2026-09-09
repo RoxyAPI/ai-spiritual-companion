@@ -8,20 +8,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
  * fork without a key show a setup notice rather than a stack trace.
  */
 
-const ORIGINAL_KEY = process.env.ROXYAPI_KEY;
+const ORIGINAL_KEY = process.env.ROXY_API_KEY;
 
 beforeEach(() => {
   vi.resetModules();
 });
 
 afterEach(() => {
-  if (ORIGINAL_KEY === undefined) delete process.env.ROXYAPI_KEY;
-  else process.env.ROXYAPI_KEY = ORIGINAL_KEY;
+  if (ORIGINAL_KEY === undefined) delete process.env.ROXY_API_KEY;
+  else process.env.ROXY_API_KEY = ORIGINAL_KEY;
 });
 
 async function loadGuard(key: string | undefined) {
-  if (key === undefined) delete process.env.ROXYAPI_KEY;
-  else process.env.ROXYAPI_KEY = key;
+  if (key === undefined) delete process.env.ROXY_API_KEY;
+  else process.env.ROXY_API_KEY = key;
   return await import('@/lib/roxy/guard');
 }
 
@@ -30,7 +30,7 @@ describe('with no key configured', () => {
     const { unwrap } = await loadGuard(undefined);
     const call = vi.fn();
 
-    await expect(unwrap(call() as never)).rejects.toThrow(/ROXYAPI_KEY is not set/);
+    await expect(unwrap(call() as never)).rejects.toThrow(/ROXY_API_KEY is not set/);
     expect(call).toHaveBeenCalledTimes(1);
   });
 
@@ -44,7 +44,7 @@ describe('with no key configured', () => {
 describe('error codes map to messages a person can act on', () => {
   const cases: [string, RegExp][] = [
     ['validation_error', /birth date, time, and place/],
-    ['invalid_api_key', /ROXYAPI_KEY is not set/],
+    ['invalid_api_key', /ROXY_API_KEY is not set/],
     ['subscription_inactive', /no active subscription/],
     ['rate_limit_exceeded', /quota reached/],
     ['not_found', /not found/],

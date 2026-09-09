@@ -50,7 +50,7 @@ Two exceptions, both deliberate. Calculation response types come from `@roxyapi/
 `src/lib/roxy/client.ts` starts with `import 'server-only'`. That single line turns any accidental import from a client component into a build error, so the key cannot reach the browser by mistake rather than by discipline.
 
 ```ts
-const roxy = createRoxy(process.env.ROXYAPI_KEY ?? '');
+const roxy = createRoxy(process.env.ROXY_API_KEY ?? '');
 ```
 
 `src/lib/roxy/guard.ts` maps the stable error codes the API returns onto messages a person can act on, and exports `unwrap` (throws) and `tryUnwrap` (returns a discriminated result). Every call goes through one of them. Never call `fetch` against the API directly, never construct a second client, and never hand write a response type: `@roxyapi/sdk` ships them, generated from the live specification, and a local interface for a remote response is the one thing guaranteed to rot.

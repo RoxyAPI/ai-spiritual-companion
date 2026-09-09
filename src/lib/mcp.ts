@@ -19,7 +19,7 @@ import type { ToolSet } from 'ai';
  */
 
 const MCP_BASE = process.env.ROXYAPI_MCP_URL ?? 'https://roxyapi.com/mcp';
-const API_KEY = process.env.ROXYAPI_KEY ?? '';
+const API_KEY = process.env.ROXY_API_KEY ?? '';
 
 /**
  * The domains this companion connects by default, in canonical order, and the single place the

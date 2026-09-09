@@ -10,9 +10,9 @@ import { createRoxy } from '@roxyapi/sdk';
  * error, so the key cannot reach the browser by mistake rather than by discipline. Read
  * {@link hasApiKey} at a page boundary, or wrap the call in `unwrap` from `./guard`.
  */
-const key = process.env.ROXYAPI_KEY;
+const key = process.env.ROXY_API_KEY;
 
 export const roxy = createRoxy(key ?? '');
 
-/** True when `ROXYAPI_KEY` is set. */
+/** True when `ROXY_API_KEY` is set. */
 export const hasApiKey = Boolean(key);

@@ -114,8 +114,8 @@ export function CitySearch({
         </p>
       ) : failed ? (
         <p className="text-xs text-destructive">
-          The city search did not answer. Check that ROXYAPI_KEY is set, then type another letter to
-          try again.
+          The city search did not answer. Check that ROXY_API_KEY is set, then type another letter
+          to try again.
         </p>
       ) : searched && !searching && results.length === 0 ? (
         <p className="text-xs text-muted-foreground">
