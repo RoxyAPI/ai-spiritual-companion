@@ -87,10 +87,10 @@ npx supabase db reset  # applies supabase/migrations, including pgvector
 
 | It prints | For |
 |---|---|
-| `API URL`, usually `http://127.0.0.1:54321` | `NEXT_PUBLIC_SUPABASE_URL` |
-| `Publishable key`, also shown as `anon key` | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
-| `Studio URL`, usually `http://127.0.0.1:54323` | Browsing the tables and watching the memory land |
-| `Inbucket URL` or `Mailpit URL`, usually `http://127.0.0.1:54324` | **Reading your sign in email.** No mail leaves your machine |
+| `Project URL`, usually `http://127.0.0.1:54321` | `NEXT_PUBLIC_SUPABASE_URL` |
+| `Publishable`, the key that starts with `sb_publishable_` | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
+| `Studio`, usually `http://127.0.0.1:54323` | Browsing the tables and watching the memory land |
+| `Mailpit`, usually `http://127.0.0.1:54324` | **Reading your sign in email.** No mail leaves your machine |
 
 **3. Add your keys**
 
@@ -153,7 +153,7 @@ Two honest notes. Free embedding tiers rate limit hard, so sending several messa
 
 **A `supabase` command says it cannot be found.** Prefix it with `npx`, which is how every Supabase command in this README is written. The CLI is fetched on demand rather than installed globally.
 
-**No email arrives at the sign in screen.** Nothing is actually sent in local development, so no inbox of yours will ever show it. The message is captured on your own machine and is already waiting at http://127.0.0.1:54324. If that page is empty, check that `NEXT_PUBLIC_SUPABASE_URL` in `.env.local` matches the API URL that `npx supabase start` printed.
+**No email arrives at the sign in screen.** Nothing is actually sent in local development, so no inbox of yours will ever show it. The message is captured on your own machine and is already waiting at http://127.0.0.1:54324. If that page is empty, check that `NEXT_PUBLIC_SUPABASE_URL` in `.env.local` matches the Project URL that `npx supabase start` printed.
 
 **The link lands on "That link did not work".** Each link works once and expires, so one you have already opened ends here. Ask for a fresh one. If every link ends here, open the app on http://localhost:3000 rather than http://127.0.0.1:3000, because the sign in link is issued for the first of those.
 

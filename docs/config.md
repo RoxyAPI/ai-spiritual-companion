@@ -47,7 +47,7 @@ npx supabase start
 npx supabase db reset
 ```
 
-The CLI prints an API URL and a publishable key. Those two values are your `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for local work.
+The CLI prints a Project URL and a publishable key. Those two values are your `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for local work.
 
 Hosted, for a deployment: create a project, then link and push.
 

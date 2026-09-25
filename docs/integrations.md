@@ -24,7 +24,7 @@ npx supabase start
 npx supabase db reset
 ```
 
-The command prints an API URL, a publishable key, and the address of a local mail viewer where magic links are captured instead of being delivered.
+The command prints a Project URL, a publishable key, and the address of a local mail viewer where magic links are captured instead of being delivered.
 
 **Hosted**, for a real deployment:
 
@@ -34,7 +34,7 @@ The command prints an API URL, a publishable key, and the address of a local mai
 4. Copy the project URL and the publishable key from the API settings into your environment
 5. In Authentication, add your deployed URL to the redirect allow list, or the magic link will bounce back to localhost
 
-The publishable key is public by design. It is safe only because row level security is enabled on every table and every policy is keyed to the signed in user. If you ever add a service role key to this project, understand that it bypasses all of that, and put it nowhere near a route handler.
+The publishable key is public by design. It is safe only because row level security is enabled on every table and every policy is keyed to the signed in user. If you ever add a Supabase secret key to this project, understand that it runs as the `service_role` database role and bypasses all of that, and put it nowhere near a route handler.
 
 pgvector ships with Supabase as an extension. The first migration enables it; there is nothing to install.
 

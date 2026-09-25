@@ -126,6 +126,6 @@ npx supabase start          # starts Postgres, Auth, and the local dashboard
 npx supabase db reset       # applies every migration in supabase/migrations
 ```
 
-`npx supabase start` prints the local API URL and the publishable key. Put them in `.env.local` as described in [config.md](./config.md). Magic links sent locally are captured by the local mail viewer rather than delivered, and the CLI prints its address when it starts.
+`npx supabase start` prints the local Project URL and the publishable key. Put them in `.env.local` as described in [config.md](./config.md). Magic links sent locally are captured by the local mail viewer rather than delivered, and the CLI prints its address when it starts.
 
 To change the schema, add a new file under `supabase/migrations/` with a timestamp prefix and run `npx supabase db reset`. Never edit a migration that has already run somewhere real. Then update `src/types/database.ts` to match, which `tests/schema.test.ts` will insist on.

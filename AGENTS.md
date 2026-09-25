@@ -18,7 +18,7 @@ Prefer these live sources over memory for any RoxyAPI path, field, SDK method, o
 ## Setup
 
 1. Get an API key at https://roxyapi.com/pricing and a model key from one of the providers in `docs/integrations.md`.
-2. Start the database. This needs Docker and no account: `npx supabase start`, then `npx supabase db reset` to apply the migrations. The first command prints an API URL, a publishable key, and the address of a local mail viewer that catches the sign in links.
+2. Start the database. This needs Docker and no account: `npx supabase start`, then `npx supabase db reset` to apply the migrations. The first command prints a Project URL, a publishable key, and the address of a local mail viewer that catches the sign in links.
 3. `cp .env.example .env.local` and fill in the five values it documents.
 4. `npm install`, then `npm run dev`, then open http://localhost:3000
 5. `npm run verify` runs the whole gate in the order everything else runs it: format, lint, types, tests, build with no key. Run it before you push. The same order runs on commit and on push.
@@ -82,7 +82,7 @@ Four tables, all with row level security keyed to the signed in user: `profiles`
 
 **The natal chart is computed once per account, ever.** It comes from immutable birth data, so a second call is pure waste. `charts.user_id` is the primary key, which makes that structural rather than a promise. Do not add a refresh button.
 
-**Row level security is the access control.** Every query runs as the signed in user and every policy is keyed to `auth.uid()`. The application code does not repeat the check, and there is no service role key in this project. Adding one means a bug in any route handler bypasses every policy at once.
+**Row level security is the access control.** Every query runs as the signed in user and every policy is keyed to `auth.uid()`. The application code does not repeat the check, and there is no Supabase secret key in this project. A secret key runs as the `service_role` database role, which bypasses row level security, so adding one means a bug in any route handler bypasses every policy at once.
 
 **Location first, chart second.** Never ask somebody for coordinates. The city autocomplete resolves latitude, longitude and the IANA timezone, and the IANA name is what gets stored, because it is the form that stays correct across a daylight saving boundary in the year somebody was born.
 

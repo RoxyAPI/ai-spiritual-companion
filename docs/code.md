@@ -77,7 +77,7 @@ They differ only in how they reach cookies. Do not add a third.
 
 **There is no browser client, and that is deliberate.** The sign in form and the sign out button are client components, but neither one talks to Supabase: both call a server action in `src/app/auth/actions.ts` and the session work happens there. So nothing in the browser bundle ever constructs a Supabase client, and the Supabase API port never has to be reachable from a visitor network at all. Adding a browser client would put that port back on the public path, which is a larger change than the round trip it saves.
 
-Every query runs as the signed in user, so row level security is doing the access control and the application code is not repeating it. There is no service role key in this project at all. Adding one would mean any bug in a route handler bypasses every policy at once.
+Every query runs as the signed in user, so row level security is doing the access control and the application code is not repeating it. There is no Supabase secret key in this project at all. A secret key runs as the `service_role` database role, which bypasses row level security, so adding one would mean any bug in a route handler bypasses every policy at once.
 
 ## Two tools, one job each
 

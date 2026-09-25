@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 /**
  * The guard on the security promise, and on the hand written schema type.
  *
- * Row level security is what makes the anon key safe to publish, so a table that ships without it
+ * Row level security is what makes the publishable key safe to publish, so a table that ships without it
  * is not a bug in a feature, it is every user reading every other user. This suite reads the
  * migrations rather than trusting a comment.
  *
