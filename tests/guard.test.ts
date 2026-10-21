@@ -48,6 +48,12 @@ describe('error codes map to messages a person can act on', () => {
     ['subscription_inactive', /no active subscription/],
     ['rate_limit_exceeded', /quota reached/],
     ['not_found', /not found/],
+    ['api_key_revoked', /revoked/],
+    ['origin_required', /approved websites/],
+    ['origin_not_allowed', /approved websites/],
+    ['date_out_of_range', /outside the range/],
+    ['rate_limit_per_minute', /briefly busy. Try again in a moment/],
+    ['compute_saturated', /briefly busy. Try again in a moment/],
   ];
 
   for (const [code, expected] of cases) {
@@ -65,6 +71,24 @@ describe('error codes map to messages a person can act on', () => {
     await expect(thrown).rejects.toThrow('The calculation could not be completed');
     // The upstream text is third party prose nobody reviewed. It goes to the server log instead.
     await expect(thrown).rejects.not.toThrow('Upstream said this');
+  });
+});
+
+describe('Retry-After', () => {
+  it('names the wait when the response carries one', async () => {
+    const { unwrap } = await loadGuard('test-key');
+    const response = { headers: new Headers({ 'Retry-After': '7' }) };
+    await expect(
+      unwrap(Promise.resolve({ error: { code: 'compute_saturated' }, response })),
+    ).rejects.toThrow('Try again in 7 seconds');
+  });
+
+  it('ignores a value that is not a positive number', async () => {
+    const { unwrap } = await loadGuard('test-key');
+    const response = { headers: new Headers({ 'Retry-After': 'soon' }) };
+    await expect(
+      unwrap(Promise.resolve({ error: { code: 'rate_limit_per_minute' }, response })),
+    ).rejects.toThrow('Try again in a moment');
   });
 });
 
