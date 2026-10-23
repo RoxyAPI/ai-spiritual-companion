@@ -34,11 +34,11 @@ export function getProvider(): Provider {
 export function getModel(): LanguageModel {
   switch (getProvider()) {
     case 'anthropic':
-      return anthropic('claude-haiku-4-5');
+      return anthropic('claude-haiku-5-5');
     case 'openai':
-      return openai('gpt-5.6-luna');
+      return openai('gpt-6-luna');
     default:
-      return google('gemini-3.7-flash');
+      return google('gemini-3.8-flash');
   }
 }
 
