@@ -108,7 +108,7 @@ Set `ROXYAPI_MCP_TOOLS=all` to hand over everything the connected domains offer,
 
 ### Compact responses
 
-Every RoxyAPI tool takes an opt in `compact` boolean. It returns the same data with each field name sent once for a whole array instead of once per row, which is lossless and cuts the size of a detailed chart response by roughly 40 to 52 percent. Measured on a transits call while building this: 56,662 bytes down to 33,338, a reduction of 41 percent.
+Every RoxyAPI tool takes an opt in `compact` boolean. It returns the same data token-optimized and lossless, and cuts the size of a detailed chart response by roughly 40 to 52 percent. Measured on a transits call while building this: 56,662 bytes down to 33,338, a reduction of 41 percent.
 
 It is enabled two ways on purpose. `withCompactResults` wraps every tool so the flag is in the arguments whichever way the model calls it, and one line of the system prompt asks for the same thing, so the behaviour stays visible to somebody who removes the wrapper. Fewer tokens in a tool result is less to pay your model provider and less for the model to read. It has no bearing on how many requests are counted.
 

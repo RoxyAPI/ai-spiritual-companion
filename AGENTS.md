@@ -38,7 +38,7 @@ Three things about that module are load bearing.
 
 **The default connects a few domains, not all of them.** Every connected tool is a tool definition in front of the model on every turn, and vendors document selection accuracy falling as that list grows. `ROXYAPI_MCP_PRODUCTS` widens it, and every domain on the platform works without a code change. Sources and numbers: `docs/companion.md`.
 
-**Every call asks for the compact response shape.** `compact: true` returns the same data with each field name sent once for a whole array instead of once per row, which is lossless and roughly 40 to 52 percent fewer tokens on a detailed chart. It is injected by a wrapper and asked for again in the system prompt. Lower inference cost, no bearing on how many requests are counted.
+**Every call asks for the compact response shape.** `compact: true` returns the same data token-optimized and lossless, roughly 40 to 52 percent fewer tokens on a detailed chart. It is injected by a wrapper and asked for again in the system prompt. Lower inference cost, no bearing on how many requests are counted.
 
 **The natal chart tool is never given to the model.** The application computes that once per account and caches it, and a guarantee a model can opt out of is not a guarantee. It is already in the prompt on every turn.
 
